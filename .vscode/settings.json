@@ -1,0 +1,16 @@
+{
+    "Lua.diagnostics.globals": [
+        "CFrame",
+        "Vector3"
+    ],
+    "Lua.diagnostics.disable": [
+        "undefined-global",
+        "redefined-local",
+        "empty-block",
+        "unknown-symbol",
+        "redundant-parameter",
+        "undefined-rbx-member",
+        "incorrect-call-arguments"
+    ],
+    "Lua.runtime.version": "Luau"
+}
