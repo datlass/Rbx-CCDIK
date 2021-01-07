@@ -6,12 +6,15 @@ for i =1,1000 do
     test.Parent = mech
 end
 --[[--------------------------------------------------------
+method 2 = get descendants
+method 1 = object values
     Method 2 : 0.137 seconds
     method 1: 0.06 seconds
     makes sense loop through less
     with 1000+ more instances it becomes
     Method 2: 1.8 seconds
-    Method 1: 0.07 seconds
+    Method 1: 0.07 seconds -- stays the same
+    Might be better to use getDescendants initially then do the object value method
 ]]
 
 local startTime = os.clock()
