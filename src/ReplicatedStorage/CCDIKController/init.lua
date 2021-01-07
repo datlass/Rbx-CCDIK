@@ -190,14 +190,14 @@ end
 
 function CCDIKController.rotateJointFromTo(motor6DJoint,u,v,axis)
 	local rotationCFrame = getRotationBetween(u,v,axis)
-	rotationCFrame = rotationCFrame*motor6DJoint.Part1.CFrame*motor6DJoint.Part0.CFrame:Inverse()
+	rotationCFrame = motor6DJoint.Part0.CFrame:Inverse()*rotationCFrame*motor6DJoint.Part1.CFrame
 	rotationCFrame = rotationCFrame-rotationCFrame.Position
 	motor6DJoint.C0 = CFrame.new(motor6DJoint.C0.Position)*rotationCFrame
 end
 
 function CCDIKController:rotateJointFromToWithLerp(motor6DJoint,u,v,axis)
 	local rotationCFrame = getRotationBetween(u,v,axis)
-	rotationCFrame = rotationCFrame*motor6DJoint.Part1.CFrame*motor6DJoint.Part0.CFrame:Inverse()
+	rotationCFrame = motor6DJoint.Part0.CFrame:Inverse()*rotationCFrame*motor6DJoint.Part1.CFrame
 	rotationCFrame = rotationCFrame-rotationCFrame.Position
 	local goalC0CFrame = CFrame.new(motor6DJoint.C0.Position)*rotationCFrame
 	local lerpAlpha = self.LerpAlpha
