@@ -388,27 +388,27 @@ gcLgc4RKxr21zq2UlJSM]]></BinaryString>
 			<Properties>
 				<BinaryString name="AttributesSerialize"></BinaryString>
 				<CoordinateFrame name="CFrame">
-					<X>-74.8526764</X>
-					<Y>31.8182774</Y>
-					<Z>7.83156443</Z>
-					<R00>0.352715135</R00>
-					<R01>0.412798166</R01>
-					<R02>-0.839755833</R02>
+					<X>-72.8669128</X>
+					<Y>28.7843304</Y>
+					<Z>8.58741283</Z>
+					<R00>0.116410032</R00>
+					<R01>0.46813783</R01>
+					<R02>-0.875954211</R02>
 					<R10>-0</R10>
-					<R11>0.897433281</R11>
-					<R12>0.441150546</R12>
-					<R20>0.935730815</R20>
-					<R21>-0.155600473</R21>
-					<R22>0.316538244</R22>
+					<R11>0.881950378</R11>
+					<R12>0.471342355</R12>
+					<R20>0.993201256</R20>
+					<R21>-0.0548689775</R21>
+					<R22>0.102667868</R22>
 				</CoordinateFrame>
 				<Ref name="CameraSubject">null</Ref>
 				<token name="CameraType">0</token>
 				<float name="FieldOfView">70</float>
 				<token name="FieldOfViewMode">0</token>
 				<CoordinateFrame name="Focus">
-					<X>-73.1731644</X>
-					<Y>30.935976</Y>
-					<Z>7.19848776</Z>
+					<X>-71.1150055</X>
+					<Y>27.8416462</Y>
+					<Z>8.38207722</Z>
 					<R00>1</R00>
 					<R01>0</R01>
 					<R02>0</R02>
@@ -7352,6 +7352,21 @@ gcLgc4RKxr21zq2UlJSM]]></BinaryString>
 					</Properties>
 				</Item>
 			</Item>
+			<Item class="Script" referent="RBXc3dd97aceed8468fa30473fe2476d3b3">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<bool name="Disabled">true</bool>
+					<Content name="LinkedSource"><null></null></Content>
+					<string name="Name">NotesReadme</string>
+					<string name="ScriptGuid">{b4efaa9b-2ead-461e-b88f-d855f76b24a3}</string>
+					<ProtectedString name="Source"><![CDATA[--[[
+Me taking notes from the Roblox physics
+Constraints system :P
+]]]]></ProtectedString>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+				</Properties>
+			</Item>
 		</Item>
 		<Item class="Part" referent="RBX0a98cd30ad234c13996d669b5799f858">
 			<Properties>
@@ -7779,7 +7794,7 @@ gcLgc4RKxr21zq2UlJSM]]></BinaryString>
 					<ProtectedString name="Source"><![CDATA[--Testing with my mech model
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local IKController = require(ReplicatedStorage.Source.IKController)
+local CCDIKController = require(ReplicatedStorage.Source.CCDIKController)
 
 local mech = workspace.LowerBody
 local leftTarget = workspace.MechLTarget
@@ -7826,7 +7841,7 @@ local constraints = {
 
 local fullLeg = {upperLeg,knee,lowerLeg,foot}
 
-local leftLegController = IKController.new(fullLeg,constraints)
+local leftLegController = CCDIKController.new(fullLeg,constraints)
 
 RunService.Heartbeat:Connect(function()
     local goal = leftTarget.Position
@@ -7927,7 +7942,7 @@ return no
 ]]
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local IKController = require(ReplicatedStorage.Source.IKController)
+local CCDIKController = require(ReplicatedStorage.Source.CCDIKController)
 
 local mech = workspace.Dummy
 local leftTarget = workspace.newTarget
@@ -7962,7 +7977,7 @@ local foot = mechMotor6Ds["LeftAnkle"]
 
 local fullLeg = {upperLeg,knee,foot}
 
-local leftLegController = IKController.new(fullLeg)
+local leftLegController = CCDIKController.new(fullLeg)
 
 local run = true
 while run do
@@ -8041,13 +8056,181 @@ return require(baseModule)
 				<int64 name="SourceAssetId">-1</int64>
 				<BinaryString name="Tags"></BinaryString>
 			</Properties>
-			<Item class="ModuleScript" referent="RBXd0b3474bdf444b528afdeb6409588154">
+			<Item class="Folder" referent="RBXcc6362a0fe9d46d892ca85d2ec939972">
+				<Properties>
+					<BinaryString name="AttributesSerialize"></BinaryString>
+					<string name="Name">CommandbarBenchmarking</string>
+					<int64 name="SourceAssetId">-1</int64>
+					<BinaryString name="Tags"></BinaryString>
+				</Properties>
+				<Item class="ModuleScript" referent="RBX656b40b5743a425a8e8f9787692d8e01">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">FindingJointPositionBenchmark</string>
+						<string name="ScriptGuid">{3664e6c1-123b-43cf-a4b1-4114de231a6d}</string>
+						<ProtectedString name="Source"><![CDATA[-- more benchmarking in the command bar
+
+
+--Method 1 = 0.021 seconds CFrame math method
+local part = Instance.new("Part")
+part.CFrame = CFrame.new(1,5,100)*CFrame.fromOrientation(2,5,50)
+
+local testMotor = Instance.new("Motor6D")
+testMotor.C0 = CFrame.new(1,5,2)*CFrame.fromOrientation(1,5,3)
+testMotor.Part0 = part
+
+local startTime = os.clock()
+
+local position
+
+for i=1,10000 do
+    position = (testMotor.Part0.CFrame*testMotor.C0).Position
+end
+
+local deltaTime = os.clock() - startTime
+print("Elapsed time method 1: " .. deltaTime)
+
+--Method2, = 0.00239 seconds attachment method, yep much faster to use attachments to find the joint worldPosition
+local attachment = Instance.new("Attachment")
+attachment.CFrame = CFrame.new(1,5,100)*CFrame.fromOrientation(2,5,50)
+attachment.Parent = part
+
+local startTime = os.clock()
+
+local attachPosition
+
+for i=1,10000 do
+    attachPosition = attachment.WorldPosition
+end
+
+local deltaTime = os.clock() - startTime
+print("Elapsed time method 2: " .. deltaTime)
+
+return nothing]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+					</Properties>
+				</Item>
+				<Item class="ModuleScript" referent="RBX95656a7bd6a74ece95b1fc4b4cf461a5">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">ObtainMotor6D</string>
+						<string name="ScriptGuid">{9ce32e01-adcf-4bba-9003-6750c9e44452}</string>
+						<ProtectedString name="Source"><![CDATA[-- spare code used to benchmark obtaining a dictionary of named Motor6D values
+--Yeah using predefined instance values with less to loop through is much faster
+
+for i =1,1000 do
+    local test = Instance.new("ObjectValue")
+    test.Parent = mech
+end
+--[[--------------------------------------------------------
+method 2 = get descendants
+method 1 = object values
+    Method 2 : 0.137 seconds
+    method 1: 0.06 seconds
+    makes sense loop through less
+    with 1000+ more instances it becomes
+    Method 2: 1.8 seconds
+    Method 1: 0.07 seconds -- stays the same
+    Might be better to use getDescendants initially then do the object value method
+]]
+
+local startTime = os.clock()
+
+for i=1,10000 do
+    local Motor6DValues = mech.Motor6DValues:GetChildren()
+    local ModelMotor6Ds = {}
+    for i,v in pairs (Motor6DValues) do
+        ModelMotor6Ds[v.Name] = v.Value
+    end
+end
+
+local deltaTime = os.clock() - startTime
+print("Elapsed time method 1: " .. deltaTime)
+
+
+local startTime = os.clock()
+
+for i=1,10000 do
+    local descendants = mech:GetDescendants()
+    local ModelMotor6Ds = {}
+    for i,v in pairs (descendants) do
+        if v:IsA("Motor6D") then
+            ModelMotor6Ds[v.Name] = v
+        end
+    end
+end
+
+
+local deltaTime = os.clock() - startTime
+print("Elapsed time method 2: " .. deltaTime)
+
+return nothing]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+					</Properties>
+				</Item>
+				<Item class="ModuleScript" referent="RBXe8e3b20bca3b4c2f91d8ed4c60d555fe">
+					<Properties>
+						<BinaryString name="AttributesSerialize"></BinaryString>
+						<Content name="LinkedSource"><null></null></Content>
+						<string name="Name">Rotationmethod</string>
+						<string name="ScriptGuid">{79026411-a99f-4763-ad89-7264960b647a}</string>
+						<ProtectedString name="Source"><![CDATA[--Axis angle version
+local function fromToRotation(u,v,axis)
+    local dot = u:Dot(v)
+    if (dot > 0.99999) then
+        -- situation 1
+        return CFrame.new()
+    elseif (dot < -0.99999) then
+        -- situation 2
+        return CFrame.fromAxisAngle(axis, math.pi)
+    end
+	-- situation 3
+		return CFrame.fromAxisAngle(u:Cross(v), math.acos(dot)*0.8)
+end
+
+--Quaternion rotation version from Egomoose
+--The cooler version
+local function getRotationBetween(u, v, axis)
+    local dot, uxv = u:Dot(v), u:Cross(v)
+    if (dot < -0.99999) then return CFrame.fromAxisAngle(axis, math.pi) end
+    return CFrame.new(0, 0, 0, uxv.x, uxv.y, uxv.z, 1 + dot)
+end
+
+local UPVECTOR = Vector3.new(0,1,0)
+local RIGHTVECTOR = Vector3.new(1,0,0)
+local WORLDLOOKVECTOR = Vector3.new(0,0,-1)
+
+--Method 1, using axis angle, 0.0055 seconds, 0.008
+--Method 2 using quaternion, 0.009 seconds, 0.007
+--Eh it's kinda the same shouldn't matter.
+local startTime = os.clock()
+
+for i=1,10000 do
+    fromToRotation(UPVECTOR,RIGHTVECTOR,WORLDLOOKVECTOR)
+    --getRotationBetween(UPVECTOR,RIGHTVECTOR,WORLDLOOKVECTOR)
+end
+
+local deltaTime = os.clock() - startTime
+print("Elapsed time method 1: " .. deltaTime)
+
+
+return nothing]]></ProtectedString>
+						<int64 name="SourceAssetId">-1</int64>
+						<BinaryString name="Tags"></BinaryString>
+					</Properties>
+				</Item>
+			</Item>
+			<Item class="ModuleScript" referent="RBX6ce07e826c5246799376756b67c359b7">
 				<Properties>
 					<BinaryString name="AttributesSerialize"></BinaryString>
 					<Content name="LinkedSource"><null></null></Content>
-					<string name="Name">IKController</string>
-					<string name="ScriptGuid">{8bab5f45-cf85-4bf2-be4b-d68f8b60aa58}</string>
-					<ProtectedString name="Source"><![CDATA[-- IKController
+					<string name="Name">CCDIKController</string>
+					<string name="ScriptGuid">{57e8da69-3d62-42fb-9863-8fcbe0bd66a6}</string>
+					<ProtectedString name="Source"><![CDATA[-- CCDIKController
 -- Dthecoolest
 -- December 27, 2020
 
@@ -8111,11 +8294,11 @@ local constraintsTemplate = {
 	};
 }
 
-local IKController = {}
-IKController.__index = IKController
+local CCDIKController = {}
+CCDIKController.__index = CCDIKController
 
-function IKController.new(Motor6DTable,Constraints)
-	local self = setmetatable({}, IKController)
+function CCDIKController.new(Motor6DTable,Constraints)
+	local self = setmetatable({}, CCDIKController)
 
 	self.Maid = Maid.new()
 	self.Motor6DTable = Motor6DTable
@@ -8132,7 +8315,7 @@ end
 --[[
 	Sets up the attachments to find the Motor6D joints position in world space, also tries to find the constraint axis
 ]]
-function IKController:SetupJoints()
+function CCDIKController:SetupJoints()
 	local joints ={}
 	local jointAxisInfo = {}
 	for _,motor in pairs(self.Motor6DTable) do
@@ -8170,7 +8353,7 @@ function IKController:SetupJoints()
 	self.JointAxisInfo = jointAxisInfo
 end
 
-function IKController:CCDIKIterateOnce(goalPosition,tolerance)
+function CCDIKController:CCDIKIterateOnce(goalPosition,tolerance)
 	local constraints = self.Constraints
 	local endEffectorPosition
 	if self.EndEffector then
@@ -8202,7 +8385,7 @@ function IKController:CCDIKIterateOnce(goalPosition,tolerance)
 end
 
 -- Same as Iterate once but in a while loop
-function IKController:CCDIKIterateUntil(goalPosition,tolerance,maxBreakCount)
+function CCDIKController:CCDIKIterateUntil(goalPosition,tolerance,maxBreakCount)
 	local maxBreakCount = maxBreakCount or 10
 	local currentIterationCount = 0
 	local constraints = self.Constraints
@@ -8237,14 +8420,14 @@ function IKController:CCDIKIterateUntil(goalPosition,tolerance,maxBreakCount)
 end
 
 
-function IKController.rotateJointFromTo(motor6DJoint,u,v,axis)
+function CCDIKController.rotateJointFromTo(motor6DJoint,u,v,axis)
 	local rotationCFrame = getRotationBetween(u,v,axis)
 	rotationCFrame = rotationCFrame*motor6DJoint.Part1.CFrame*motor6DJoint.Part0.CFrame:Inverse()
 	rotationCFrame = rotationCFrame-rotationCFrame.Position
 	motor6DJoint.C0 = CFrame.new(motor6DJoint.C0.Position)*rotationCFrame
 end
 
-function IKController:rotateJointFromToWithLerp(motor6DJoint,u,v,axis)
+function CCDIKController:rotateJointFromToWithLerp(motor6DJoint,u,v,axis)
 	local rotationCFrame = getRotationBetween(u,v,axis)
 	rotationCFrame = rotationCFrame*motor6DJoint.Part1.CFrame*motor6DJoint.Part0.CFrame:Inverse()
 	rotationCFrame = rotationCFrame-rotationCFrame.Position
@@ -8253,7 +8436,7 @@ function IKController:rotateJointFromToWithLerp(motor6DJoint,u,v,axis)
 	motor6DJoint.C0 = motor6DJoint.C0:Lerp(goalC0CFrame,lerpAlpha)
 end
 
-function IKController:RotateFromEffectorToGoal(motor6d : Motor6D,goalPosition)
+function CCDIKController:RotateFromEffectorToGoal(motor6d : Motor6D,goalPosition)
 
 	local motor6dPart0 = motor6d.Part0
 	local part0CF = motor6dPart0.CFrame
@@ -8293,7 +8476,7 @@ Dictionary to setup the constraint information:
 		["JointAttachment"] = nil;
 	};
 ]]
-function IKController:RotateToHingeAxis(motor6d : Motor6D,jointConstraintInfo)
+function CCDIKController:RotateToHingeAxis(motor6d : Motor6D,jointConstraintInfo)
 	local motor6dPart0 = motor6d.Part0
 	local part0CF = motor6dPart0.CFrame
 	local axisAttachment = jointConstraintInfo.AxisAttachment
@@ -8341,7 +8524,7 @@ Dictionary to setup the constraint information:
 		["JointAttachment"] = nil;
 	};
 ]]
-function IKController:RotateToBallSocketConstraintAxis(motor6d,jointConstraintInfo)
+function CCDIKController:RotateToBallSocketConstraintAxis(motor6d,jointConstraintInfo)
 	local motor6dPart0 = motor6d.Part0
 	local part0CF = motor6dPart0.CFrame
 	local axisAttachment = jointConstraintInfo.AxisAttachment
@@ -8367,7 +8550,7 @@ end
 --[[
 	Utility function spawning a wedge part to visualize a vector in world space
 ]]
-function IKController.VisualizeVector(position,direction,brickColor)
+function CCDIKController.VisualizeVector(position,direction,brickColor)
 	local wedgePart = Instance.new("WedgePart")
 	wedgePart.Size = Vector3.new(1,1,direction.Magnitude)
 	wedgePart.CFrame = CFLOOKAT(position,position+direction)*CFrame.new(0,0,-direction.Magnitude/2)
@@ -8384,7 +8567,7 @@ end
 	Usefull for creating HingeConstraints and BallSocketConstraints to visualize and orientate the attachments
 	Pretty necessary in fact to create the attachment axis and decide the upper angle or lower angle
 ]]
-function IKController.CommandBarSetupJoints(model)
+function CCDIKController.CommandBarSetupJoints(model)
 	local modelDescendants = model:GetDescendants()
 	for _,motor6D in pairs(modelDescendants) do
 		if motor6D:IsA("Motor6D") then
@@ -8405,229 +8588,21 @@ end
 --[[
 	Do cleaning destroys all the instances made by this object
 ]]
-function IKController:Destroy()
+function CCDIKController:Destroy()
 	self.Maid:DoCleaning()
 	self = nil
 end
 
-return IKController]]></ProtectedString>
+return CCDIKController]]></ProtectedString>
 					<int64 name="SourceAssetId">-1</int64>
 					<BinaryString name="Tags"></BinaryString>
 				</Properties>
-				<Item class="ModuleScript" referent="RBXf74b4ec44d1545749485ff76bb236e93">
-					<Properties>
-						<BinaryString name="AttributesSerialize"></BinaryString>
-						<Content name="LinkedSource"><null></null></Content>
-						<string name="Name">VectorUtil</string>
-						<string name="ScriptGuid">{3993394b-7032-47c2-abe9-6b2452631495}</string>
-						<ProtectedString name="Source"><![CDATA[-- Vector Util
--- Stephen Leitnick
--- April 22, 2020
-
---[[
-
-	VectorUtil.ClampMagnitude(vector, maxMagnitude)
-	VectorUtil.AngleBetween(vector1, vector2)
-	VectorUtil.AngleBetweenSigned(vector1, vector2, axisVector)
-
-
-	EXAMPLES:
-
-		ClampMagnitude:
-
-			Clamps the magnitude of a vector so it is only a certain length.
-
-			ClampMagnitude(Vector3.new(100, 0, 0), 15) == Vector3.new(15, 0, 0)
-			ClampMagnitude(Vector3.new(10, 0, 0), 20)  == Vector3.new(10, 0, 0)
-
-		
-		AngleBetween:
-
-			Finds the angle (in radians) between two vectors.
-
-			v1 = Vector3.new(10, 0, 0)
-			v2 = Vector3.new(0, 10, 0)
-			AngleBetween(v1, v2) == math.rad(90)
-
-		
-		AngleBetweenSigned:
-
-			Same as AngleBetween, but returns a signed value.
-
-			v1 = Vector3.new(10, 0, 0)
-			v2 = Vector3.new(0, 0, -10)
-			axis = Vector3.new(0, 1, 0)
-			AngleBetweenSigned(v1, v2, axis) == math.rad(90)
-
---]]
-
-
-local VectorUtil = {}
-
-
-function VectorUtil.ClampMagnitude(vector, maxMagnitude)
-	return (vector.Magnitude > maxMagnitude and (vector.Unit * maxMagnitude) or vector)
-end
-
-
-function VectorUtil.AngleBetween(vector1, vector2)
-	return math.acos(math.clamp(vector1.Unit:Dot(vector2.Unit), -1, 1))
-end
-
-
-function VectorUtil.AngleBetweenSigned(vector1, vector2, axisVector)
-	local angle = VectorUtil.AngleBetween(vector1, vector2)
-	return angle * math.sign(axisVector:Dot(vector1:Cross(vector2)))
-end
-
-function VectorUtil.SquaredMagnitude(vector)
-	return vector.X^2+vector.Y^2+vector.Z^2
-end
-
-
-return VectorUtil]]></ProtectedString>
-						<int64 name="SourceAssetId">-1</int64>
-						<BinaryString name="Tags"></BinaryString>
-					</Properties>
-				</Item>
-				<Item class="ModuleScript" referent="RBXd0d00282a98b4f7399c04e6cea7826df">
-					<Properties>
-						<BinaryString name="AttributesSerialize"></BinaryString>
-						<Content name="LinkedSource"><null></null></Content>
-						<string name="Name">Quaternion</string>
-						<string name="ScriptGuid">{e6f4a4cb-7797-4b5c-88fc-45ea30dcb288}</string>
-						<ProtectedString name="Source"><![CDATA[local quaternion = {}
-local quaternion_mt = {__index = quaternion};
-
-function quaternion_mt.__unm(q)
-	return quaternion.new(-q.w, -q.x, -q.y, -q.z)
-end
-
-function quaternion_mt.__mul(q0, q1)
-	local w0, w1 = q0.w, q1.w;
-	local v0, v1 = Vector3.new(q0.x, q0.y, q0.z), Vector3.new(q1.x, q1.y, q1.z);
-	local nw = w0*w1 - v0:Dot(v1);
-	local nv = v0*w1 + v1*w0 + v0:Cross(v1);
-	return quaternion.new(nw, nv.x, nv.y, nv.z);
-end
-
-function quaternion_mt.__pow(q, t)
-	local axis, theta = q:toAxisAngle();
-	theta = theta*t*0.5;
-	axis = math.sin(theta)*axis;
-	return quaternion.new(math.cos(theta), axis.x, axis.y, axis.z);
-end
-
-function quaternion_mt.__tostring(q)
-	-- print as floats, be aware a more precise number is actually stored
-	return string.format("%f, %f, %f, %f", q.w, q.x, q.y, q.z);
-end
-
-function quaternion.new(w, x, y, z)
-	local self = {};
-	
-	local m = 1 / math.sqrt(w*w + x*x + y*y + z*z);
-	
-	self.w = w * m;
-	self.x = x * m;
-	self.y = y * m;
-	self.z = z * m;
-	
-	return setmetatable(self, quaternion_mt);
-end
-
-function quaternion.fromCFrame(cf)
-	local x, y, z, m11, m12, m13, m21, m22, m23, m31, m32, m33 = cf:components();
-	local qw, qx, qy, qz;
-	
-	if (m11 + m22 + m33 > 0) then
-		qw = math.sqrt(1 + m11 + m22 + m33) * 0.5;
-		qx = (m32-m23) / (4*qw);
-		qy = (m13-m31) / (4*qw);
-		qz = (m21-m12) / (4*qw);
-	elseif (m11 > m22 and m11 > m33) then
-		qx = math.sqrt(1 + m11 - m22 - m33) * 0.5;
-		qy = (m21+m12) / (4*qx);
-		qz = (m31+m13) / (4*qx);
-		qw = (m32-m23) / (4*qx);
-	elseif (m22 > m33) then
-		qy = math.sqrt(1 + m22 - m11 - m33) * 0.5;
-		qx = (m21+m12) / (4*qy);
-		qz = (m32+m23) / (4*qy);
-		qw = (m13-m31) / (4*qy);
-	else
-		qz = math.sqrt(1 + m33 - m11 - m22) * 0.5;
-		qx = (m31+m13) / (4*qz);
-		qy = (m32+m23) / (4*qz);
-		qw = (m21-m12) / (4*qz);
-	end
-	
-	return quaternion.new(qw, qx, qy, qz);
-end
-
-function quaternion:Dot(q2)
-	local q1 = self;
-	return q1.w*q2.w + q1.x*q2.x + q1.y*q2.y + q1.z*q2.z;
-end
-
-function quaternion:inverse()
-	local conjugate = self:Dot(self);
-	return quaternion.new(self.w / conjugate, -self.x / conjugate, -self.y / conjugate, -self.z / conjugate);
-end
-
-function quaternion.FromToRotation(from,to)
-	local axis = from:Cross(to);
-	local angle = math.acos(math.clamp(from.Unit:Dot(to.Unit), -1, 1));
-	return quaternion.AngleAxis(angle, axis.Unit)
-end
-
---aAngle in radian
-function quaternion.AngleAxis(aAngle, aAxis)
-	aAxis = aAxis.Unit;
-	local rad = aAngle * 0.5;
-	aAxis *= math.sin(rad);
-	return quaternion.new(aAxis.X, aAxis.Y, aAxis.Z, math.sin(rad));
-end
-
-function quaternion:toAxisAngle()
-	local v = Vector3.new(self.x, self.y, self.z);
-	local theta = math.acos(self.w)*2;
-	local axis = v / math.sin(theta*0.5);
-	return axis, theta;
-end
-
-function quaternion:toCFrame()
-	local w, x, y, z = self.w, self.x, self.y, self.z;
-	
-	return CFrame.new(0, 0, 0,
-		1-2*(y*y+z*z), 2*(y*x-w*z), 2*(w*y+z*x),
-		2*(w*z+y*x), 1-2*(x*x+z*z), 2*(z*y-w*x),
-		2*(z*x-w*y), 2*(w*x+z*y), 1-2*(x*x+y*y)
-	);
-end
-
-function quaternion:slerp(q2, t)
-	local q1 = self;
-	
-	if (q1:Dot(q2) < 0) then
-		q2 = -q2;
-	end
-	
-	return (q2 * q1:inverse())^t * q1;
-end
-
-return quaternion;
-]]></ProtectedString>
-						<int64 name="SourceAssetId">-1</int64>
-						<BinaryString name="Tags"></BinaryString>
-					</Properties>
-				</Item>
-				<Item class="ModuleScript" referent="RBX2ffc9fe5cb8844eeaf45188270c3e8a6">
+				<Item class="ModuleScript" referent="RBX317f6d3b102543dbbb9fc067d5e70457">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<Content name="LinkedSource"><null></null></Content>
 						<string name="Name">LimbChain</string>
-						<string name="ScriptGuid">{f48b3eb4-b78e-44ad-b82f-f08dc792d85d}</string>
+						<string name="ScriptGuid">{0d75182b-8b88-4d09-bc65-284ed7ccb9fd}</string>
 						<ProtectedString name="Source"><![CDATA[--[[
 
 This is the LimbChain class which manages the Motor6Ds within a rig using the FabrikSolver class to do inverse kinematics with.
@@ -9328,12 +9303,12 @@ return LimbChain
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
-					<Item class="ModuleScript" referent="RBX75ba1bfb3876413f91c0bcc5e3cbb56d">
+					<Item class="ModuleScript" referent="RBX778eba2f262a4df5ab5faafd80614fd3">
 						<Properties>
 							<BinaryString name="AttributesSerialize"></BinaryString>
 							<Content name="LinkedSource"><null></null></Content>
 							<string name="Name">Base</string>
-							<string name="ScriptGuid">{569b64c2-cb60-4c29-9046-51a8c206cebd}</string>
+							<string name="ScriptGuid">{fa47b9a7-899b-4bf4-b42b-e60ff38209a3}</string>
 							<ProtectedString name="Source"><![CDATA[--[[
 	Advanced OOP Implementation v1.0, August 24th 2020
 	Designed and written by Kironte (49703460)
@@ -9877,12 +9852,12 @@ return Base]]></ProtectedString>
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
 					</Item>
-					<Item class="ModuleScript" referent="RBXcb7dd7f6b5c94c5f81a527c22e361fcb">
+					<Item class="ModuleScript" referent="RBX5c69436167ee47cfac7939893cdb59bf">
 						<Properties>
 							<BinaryString name="AttributesSerialize"></BinaryString>
 							<Content name="LinkedSource"><null></null></Content>
 							<string name="Name">BaseRedirect</string>
-							<string name="ScriptGuid">{fae48600-a66d-4ed6-ac74-ea12cd154dfe}</string>
+							<string name="ScriptGuid">{fd3ef019-c63d-4b0a-b880-faa32d7ea3fa}</string>
 							<ProtectedString name="Source"><![CDATA[local Package = script.Parent
 
 local baseModule = Package.Base
@@ -9894,12 +9869,12 @@ return require(baseModule)
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
 					</Item>
-					<Item class="ModuleScript" referent="RBX331467ac5f8248aea14926383c3ad008">
+					<Item class="ModuleScript" referent="RBXafc2af4fad2f48f1b78c14ce91152cf1">
 						<Properties>
 							<BinaryString name="AttributesSerialize"></BinaryString>
 							<Content name="LinkedSource"><null></null></Content>
 							<string name="Name">FabrikConstraint</string>
-							<string name="ScriptGuid">{658b91d6-444a-4603-9195-e6ea06dbdcdd}</string>
+							<string name="ScriptGuid">{c7cf3feb-30f6-47f0-85fe-4b90b7881796}</string>
 							<ProtectedString name="Source"><![CDATA[--[[
     Base class for the constraint type objects which assigns the constraints axis to a BasePart
     Also responsible for creating the cone to visualize the constraints
@@ -10023,12 +9998,12 @@ return FabrikConstraint
 							<int64 name="SourceAssetId">-1</int64>
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
-						<Item class="ModuleScript" referent="RBX07981b9793884077b457e80b39addf8a">
+						<Item class="ModuleScript" referent="RBXc995fd7c667b474386cd58b42a3de9f7">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<Content name="LinkedSource"><null></null></Content>
 								<string name="Name">BallSocketConstraint</string>
-								<string name="ScriptGuid">{17ca60f0-605f-4130-a30e-0707b8c2f4c5}</string>
+								<string name="ScriptGuid">{66cc9c3b-8277-49be-bbbe-52c1d668e229}</string>
 								<ProtectedString name="Source"><![CDATA[--[[
 
 This is the FabrikConstraint object which you insert into the table to do the math
@@ -10191,12 +10166,12 @@ return BallSocketConstraint]]></ProtectedString>
 								<BinaryString name="Tags"></BinaryString>
 							</Properties>
 						</Item>
-						<Item class="ModuleScript" referent="RBXc96291f60c164326997371fe1e845bc3">
+						<Item class="ModuleScript" referent="RBXe5d73604b2164f448cb2500f3053281a">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<Content name="LinkedSource"><null></null></Content>
 								<string name="Name">HingeConstraint</string>
-								<string name="ScriptGuid">{481825d4-31a5-48e4-874c-005de43c810f}</string>
+								<string name="ScriptGuid">{dd41b04b-32f7-4047-8d21-f08eddecfc0f}</string>
 								<ProtectedString name="Source"><![CDATA[--[[
 
 This is the FabrikConstraint object which you insert into the table to do the math
@@ -10350,12 +10325,12 @@ return HingeConstraint]]></ProtectedString>
 								<BinaryString name="Tags"></BinaryString>
 							</Properties>
 						</Item>
-						<Item class="ModuleScript" referent="RBX1d2c7af39d4148d586ea5522fbf51cb5">
+						<Item class="ModuleScript" referent="RBXc669763900434b069f10b027781880cd">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<Content name="LinkedSource"><null></null></Content>
 								<string name="Name">RigidConstraint</string>
-								<string name="ScriptGuid">{4a6a7cb1-9a5f-4fd4-aa68-fd46ec2b15bb}</string>
+								<string name="ScriptGuid">{72ff4ecd-3e3b-4ad3-92fb-d8899ae09171}</string>
 								<ProtectedString name="Source"><![CDATA[
 
 -- Initialize Object Class
@@ -10433,12 +10408,12 @@ return RigidConstraint]]></ProtectedString>
 							</Properties>
 						</Item>
 					</Item>
-					<Item class="ModuleScript" referent="RBXa6531ec0a5f44ac1ad28e67c40887b5b">
+					<Item class="ModuleScript" referent="RBX9a447d6f9d36496b9aadcb25944b89de">
 						<Properties>
 							<BinaryString name="AttributesSerialize"></BinaryString>
 							<Content name="LinkedSource"><null></null></Content>
 							<string name="Name">FabrikSolver</string>
-							<string name="ScriptGuid">{8625d637-fbb8-4c74-9a3f-adb8626b77a5}</string>
+							<string name="ScriptGuid">{1aa404dd-a5c1-4c5f-add7-f7b9d86254dc}</string>
 							<ProtectedString name="Source"><![CDATA[-- Initialize Object Class
 local Package = script.Parent
 local Object = require(Package.BaseRedirect)
@@ -10712,12 +10687,12 @@ return FabrikSolver
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
 					</Item>
-					<Item class="ModuleScript" referent="RBX85747dd3efdc4964863bd621ab9107f0">
+					<Item class="ModuleScript" referent="RBXca6e5434191743abba6cd61aa92842e1">
 						<Properties>
 							<BinaryString name="AttributesSerialize"></BinaryString>
 							<Content name="LinkedSource"><null></null></Content>
 							<string name="Name">MathPlane</string>
-							<string name="ScriptGuid">{f4bc2d81-b79c-45a3-b74d-293c7029f737}</string>
+							<string name="ScriptGuid">{eb877658-75fc-4c13-8cb4-2061d218c981}</string>
 							<ProtectedString name="Source"><![CDATA[-- Initialize Object Class
 local Package = script:FindFirstAncestor("LimbChain")
 local Object = require(Package.BaseRedirect)
@@ -10782,12 +10757,12 @@ return MathPlane]]></ProtectedString>
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
 					</Item>
-					<Item class="ModuleScript" referent="RBX2c4014be42d24e26879769251e8577a4">
+					<Item class="ModuleScript" referent="RBXa3840a78dbb144c8b8c7e033c2d9c41c">
 						<Properties>
 							<BinaryString name="AttributesSerialize"></BinaryString>
 							<Content name="LinkedSource"><null></null></Content>
 							<string name="Name">ObjectTemplate</string>
-							<string name="ScriptGuid">{b720701a-41cd-4503-aad4-f0123c9cc422}</string>
+							<string name="ScriptGuid">{d67e9cf7-d24f-4421-b3b0-e57f918ba795}</string>
 							<ProtectedString name="Source"><![CDATA[-- Initialize Object Class
 local Package = script:FindFirstAncestorOfClass("Folder")
 local Object = require(Package.BaseRedirect)
@@ -10807,12 +10782,12 @@ return NAME]]></ProtectedString>
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
 					</Item>
-					<Item class="ModuleScript" referent="RBX7cb5cebc2d8d4a06930d51a57bf4d026">
+					<Item class="ModuleScript" referent="RBX2153f80c129449bca361947812df20f9">
 						<Properties>
 							<BinaryString name="AttributesSerialize"></BinaryString>
 							<Content name="LinkedSource"><null></null></Content>
 							<string name="Name">RotatedRegion3</string>
-							<string name="ScriptGuid">{f5f89978-9297-49e3-80b9-e95cdee9fa14}</string>
+							<string name="ScriptGuid">{8dd325ff-6ebe-4a92-a88e-58a46e6164f5}</string>
 							<ProtectedString name="Source"><![CDATA[--[[
 
 This is a Rotated Region3 Class that behaves much the same as the standard Region3 class expect that it allows
@@ -11066,12 +11041,12 @@ return RotatedRegion3]]></ProtectedString>
 							<int64 name="SourceAssetId">-1</int64>
 							<BinaryString name="Tags"></BinaryString>
 						</Properties>
-						<Item class="ModuleScript" referent="RBX9f171ec9833a401ca57069a0d57f1b7c">
+						<Item class="ModuleScript" referent="RBX0f2c9f5e62a741288f2797b5e08692b2">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<Content name="LinkedSource"><null></null></Content>
 								<string name="Name">GJK</string>
-								<string name="ScriptGuid">{454c6d79-4503-467c-a1b1-a612864f32f8}</string>
+								<string name="ScriptGuid">{fd27f661-9596-426e-90af-840bc4e30621}</string>
 								<ProtectedString name="Source"><![CDATA[local MAX_TRIES = 20
 local ZERO3 = Vector3.new(0, 0, 0)
 
@@ -11192,12 +11167,12 @@ return GJK]]></ProtectedString>
 								<BinaryString name="Tags"></BinaryString>
 							</Properties>
 						</Item>
-						<Item class="ModuleScript" referent="RBX255362b0a2ba497e959fa230c4d6f819">
+						<Item class="ModuleScript" referent="RBX2e07f7cf76fc4295a8b62b214d0ed926">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<Content name="LinkedSource"><null></null></Content>
 								<string name="Name">Supports</string>
-								<string name="ScriptGuid">{46c76ee5-8451-479e-99cc-b20c6dae1966}</string>
+								<string name="ScriptGuid">{5fa9909a-4a61-47a5-85e8-fa65378ae6b1}</string>
 								<ProtectedString name="Source"><![CDATA[local ZERO = Vector3.new(0, 0, 0)
 local RIGHT = Vector3.new(1, 0, 0)
 
@@ -11253,12 +11228,12 @@ return Supports]]></ProtectedString>
 								<BinaryString name="Tags"></BinaryString>
 							</Properties>
 						</Item>
-						<Item class="ModuleScript" referent="RBXb7d2d3016ba145de8c100fb9f8e55719">
+						<Item class="ModuleScript" referent="RBX484019f7b8bd4f0e9f60aff600c2245a">
 							<Properties>
 								<BinaryString name="AttributesSerialize"></BinaryString>
 								<Content name="LinkedSource"><null></null></Content>
 								<string name="Name">Vertices</string>
-								<string name="ScriptGuid">{4bf761ab-6639-4eab-8e57-cb6c75151f09}</string>
+								<string name="ScriptGuid">{7f7fee8b-c655-40d6-b461-7a7350b25d8c}</string>
 								<ProtectedString name="Source"><![CDATA[-- CONSTANTS
 
 local PI2 = math.pi*2
@@ -11463,12 +11438,12 @@ return {
 						</Item>
 					</Item>
 				</Item>
-				<Item class="ModuleScript" referent="RBXe45306cdecf6449496c992a744186679">
+				<Item class="ModuleScript" referent="RBX7181c10ba6474d52b3c42c153e06bfe1">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<Content name="LinkedSource"><null></null></Content>
 						<string name="Name">Maid</string>
-						<string name="ScriptGuid">{08d829a7-0636-4158-a760-7c5ed33bc7af}</string>
+						<string name="ScriptGuid">{24c371bd-2378-4115-a10b-daf1b5f958f9}</string>
 						<ProtectedString name="Source"><![CDATA[-- Maid
 -- Author: Quenty
 -- Source: https://github.com/Quenty/NevermoreEngine/blob/version2/Modules/Shared/Events/Maid.lua
@@ -11631,170 +11606,78 @@ return Maid]]></ProtectedString>
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>
 				</Item>
-			</Item>
-			<Item class="Folder" referent="RBXcc6362a0fe9d46d892ca85d2ec939972">
-				<Properties>
-					<BinaryString name="AttributesSerialize"></BinaryString>
-					<string name="Name">CommandbarBenchmarking</string>
-					<int64 name="SourceAssetId">-1</int64>
-					<BinaryString name="Tags"></BinaryString>
-				</Properties>
-				<Item class="ModuleScript" referent="RBX656b40b5743a425a8e8f9787692d8e01">
+				<Item class="ModuleScript" referent="RBX5bdeeb7e37f64772b6bad3664655e748">
 					<Properties>
 						<BinaryString name="AttributesSerialize"></BinaryString>
 						<Content name="LinkedSource"><null></null></Content>
-						<string name="Name">FindingJointPositionBenchmark</string>
-						<string name="ScriptGuid">{3664e6c1-123b-43cf-a4b1-4114de231a6d}</string>
-						<ProtectedString name="Source"><![CDATA[-- more benchmarking in the command bar
+						<string name="Name">VectorUtil</string>
+						<string name="ScriptGuid">{2953aa16-a829-49a1-ad73-c1f11c5bf249}</string>
+						<ProtectedString name="Source"><![CDATA[-- Vector Util
+-- Stephen Leitnick
+-- April 22, 2020
+
+--[[
+
+	VectorUtil.ClampMagnitude(vector, maxMagnitude)
+	VectorUtil.AngleBetween(vector1, vector2)
+	VectorUtil.AngleBetweenSigned(vector1, vector2, axisVector)
 
 
---Method 1 = 0.021 seconds CFrame math method
-local part = Instance.new("Part")
-part.CFrame = CFrame.new(1,5,100)*CFrame.fromOrientation(2,5,50)
+	EXAMPLES:
 
-local testMotor = Instance.new("Motor6D")
-testMotor.C0 = CFrame.new(1,5,2)*CFrame.fromOrientation(1,5,3)
-testMotor.Part0 = part
+		ClampMagnitude:
 
-local startTime = os.clock()
+			Clamps the magnitude of a vector so it is only a certain length.
 
-local position
+			ClampMagnitude(Vector3.new(100, 0, 0), 15) == Vector3.new(15, 0, 0)
+			ClampMagnitude(Vector3.new(10, 0, 0), 20)  == Vector3.new(10, 0, 0)
 
-for i=1,10000 do
-    position = (testMotor.Part0.CFrame*testMotor.C0).Position
-end
+		
+		AngleBetween:
 
-local deltaTime = os.clock() - startTime
-print("Elapsed time method 1: " .. deltaTime)
+			Finds the angle (in radians) between two vectors.
 
---Method2, = 0.00239 seconds attachment method, yep much faster to use attachments to find the joint worldPosition
-local attachment = Instance.new("Attachment")
-attachment.CFrame = CFrame.new(1,5,100)*CFrame.fromOrientation(2,5,50)
-attachment.Parent = part
+			v1 = Vector3.new(10, 0, 0)
+			v2 = Vector3.new(0, 10, 0)
+			AngleBetween(v1, v2) == math.rad(90)
 
-local startTime = os.clock()
+		
+		AngleBetweenSigned:
 
-local attachPosition
+			Same as AngleBetween, but returns a signed value.
 
-for i=1,10000 do
-    attachPosition = attachment.WorldPosition
-end
+			v1 = Vector3.new(10, 0, 0)
+			v2 = Vector3.new(0, 0, -10)
+			axis = Vector3.new(0, 1, 0)
+			AngleBetweenSigned(v1, v2, axis) == math.rad(90)
 
-local deltaTime = os.clock() - startTime
-print("Elapsed time method 2: " .. deltaTime)
-
-return nothing]]></ProtectedString>
-						<int64 name="SourceAssetId">-1</int64>
-						<BinaryString name="Tags"></BinaryString>
-					</Properties>
-				</Item>
-				<Item class="ModuleScript" referent="RBX95656a7bd6a74ece95b1fc4b4cf461a5">
-					<Properties>
-						<BinaryString name="AttributesSerialize"></BinaryString>
-						<Content name="LinkedSource"><null></null></Content>
-						<string name="Name">ObtainMotor6D</string>
-						<string name="ScriptGuid">{9ce32e01-adcf-4bba-9003-6750c9e44452}</string>
-						<ProtectedString name="Source"><![CDATA[-- spare code used to benchmark obtaining a dictionary of named Motor6D values
---Yeah using predefined instance values with less to loop through is much faster
-
-for i =1,1000 do
-    local test = Instance.new("ObjectValue")
-    test.Parent = mech
-end
---[[--------------------------------------------------------
-method 2 = get descendants
-method 1 = object values
-    Method 2 : 0.137 seconds
-    method 1: 0.06 seconds
-    makes sense loop through less
-    with 1000+ more instances it becomes
-    Method 2: 1.8 seconds
-    Method 1: 0.07 seconds -- stays the same
-    Might be better to use getDescendants initially then do the object value method
-]]
-
-local startTime = os.clock()
-
-for i=1,10000 do
-    local Motor6DValues = mech.Motor6DValues:GetChildren()
-    local ModelMotor6Ds = {}
-    for i,v in pairs (Motor6DValues) do
-        ModelMotor6Ds[v.Name] = v.Value
-    end
-end
-
-local deltaTime = os.clock() - startTime
-print("Elapsed time method 1: " .. deltaTime)
+--]]
 
 
-local startTime = os.clock()
+local VectorUtil = {}
 
-for i=1,10000 do
-    local descendants = mech:GetDescendants()
-    local ModelMotor6Ds = {}
-    for i,v in pairs (descendants) do
-        if v:IsA("Motor6D") then
-            ModelMotor6Ds[v.Name] = v
-        end
-    end
+
+function VectorUtil.ClampMagnitude(vector, maxMagnitude)
+	return (vector.Magnitude > maxMagnitude and (vector.Unit * maxMagnitude) or vector)
 end
 
 
-local deltaTime = os.clock() - startTime
-print("Elapsed time method 2: " .. deltaTime)
-
-return nothing]]></ProtectedString>
-						<int64 name="SourceAssetId">-1</int64>
-						<BinaryString name="Tags"></BinaryString>
-					</Properties>
-				</Item>
-				<Item class="ModuleScript" referent="RBXe8e3b20bca3b4c2f91d8ed4c60d555fe">
-					<Properties>
-						<BinaryString name="AttributesSerialize"></BinaryString>
-						<Content name="LinkedSource"><null></null></Content>
-						<string name="Name">Rotationmethod</string>
-						<string name="ScriptGuid">{79026411-a99f-4763-ad89-7264960b647a}</string>
-						<ProtectedString name="Source"><![CDATA[--Axis angle version
-local function fromToRotation(u,v,axis)
-    local dot = u:Dot(v)
-    if (dot > 0.99999) then
-        -- situation 1
-        return CFrame.new()
-    elseif (dot < -0.99999) then
-        -- situation 2
-        return CFrame.fromAxisAngle(axis, math.pi)
-    end
-	-- situation 3
-		return CFrame.fromAxisAngle(u:Cross(v), math.acos(dot)*0.8)
+function VectorUtil.AngleBetween(vector1, vector2)
+	return math.acos(math.clamp(vector1.Unit:Dot(vector2.Unit), -1, 1))
 end
 
---Quaternion rotation version from Egomoose
---The cooler version
-local function getRotationBetween(u, v, axis)
-    local dot, uxv = u:Dot(v), u:Cross(v)
-    if (dot < -0.99999) then return CFrame.fromAxisAngle(axis, math.pi) end
-    return CFrame.new(0, 0, 0, uxv.x, uxv.y, uxv.z, 1 + dot)
+
+function VectorUtil.AngleBetweenSigned(vector1, vector2, axisVector)
+	local angle = VectorUtil.AngleBetween(vector1, vector2)
+	return angle * math.sign(axisVector:Dot(vector1:Cross(vector2)))
 end
 
-local UPVECTOR = Vector3.new(0,1,0)
-local RIGHTVECTOR = Vector3.new(1,0,0)
-local WORLDLOOKVECTOR = Vector3.new(0,0,-1)
-
---Method 1, using axis angle, 0.0055 seconds, 0.008
---Method 2 using quaternion, 0.009 seconds, 0.007
---Eh it's kinda the same shouldn't matter.
-local startTime = os.clock()
-
-for i=1,10000 do
-    fromToRotation(UPVECTOR,RIGHTVECTOR,WORLDLOOKVECTOR)
-    --getRotationBetween(UPVECTOR,RIGHTVECTOR,WORLDLOOKVECTOR)
+function VectorUtil.SquaredMagnitude(vector)
+	return vector.X^2+vector.Y^2+vector.Z^2
 end
 
-local deltaTime = os.clock() - startTime
-print("Elapsed time method 1: " .. deltaTime)
 
-
-return nothing]]></ProtectedString>
+return VectorUtil]]></ProtectedString>
 						<int64 name="SourceAssetId">-1</int64>
 						<BinaryString name="Tags"></BinaryString>
 					</Properties>

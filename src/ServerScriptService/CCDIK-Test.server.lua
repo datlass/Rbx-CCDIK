@@ -1,7 +1,7 @@
 --Testing with my mech model
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local IKController = require(ReplicatedStorage.Source.IKController)
+local CCDIKController = require(ReplicatedStorage.Source.CCDIKController)
 
 local mech = workspace.LowerBody
 local leftTarget = workspace.MechLTarget
@@ -48,7 +48,7 @@ local constraints = {
 
 local fullLeg = {upperLeg,knee,lowerLeg,foot}
 
-local leftLegController = IKController.new(fullLeg,constraints)
+local leftLegController = CCDIKController.new(fullLeg,constraints)
 
 RunService.Heartbeat:Connect(function()
     local goal = leftTarget.Position

@@ -1,4 +1,4 @@
--- IKController
+-- CCDIKController
 -- Dthecoolest
 -- December 27, 2020
 
@@ -62,11 +62,11 @@ local constraintsTemplate = {
 	};
 }
 
-local IKController = {}
-IKController.__index = IKController
+local CCDIKController = {}
+CCDIKController.__index = CCDIKController
 
-function IKController.new(Motor6DTable,Constraints)
-	local self = setmetatable({}, IKController)
+function CCDIKController.new(Motor6DTable,Constraints)
+	local self = setmetatable({}, CCDIKController)
 
 	self.Maid = Maid.new()
 	self.Motor6DTable = Motor6DTable
@@ -83,7 +83,7 @@ end
 --[[
 	Sets up the attachments to find the Motor6D joints position in world space, also tries to find the constraint axis
 ]]
-function IKController:SetupJoints()
+function CCDIKController:SetupJoints()
 	local joints ={}
 	local jointAxisInfo = {}
 	for _,motor in pairs(self.Motor6DTable) do
@@ -121,7 +121,7 @@ function IKController:SetupJoints()
 	self.JointAxisInfo = jointAxisInfo
 end
 
-function IKController:CCDIKIterateOnce(goalPosition,tolerance)
+function CCDIKController:CCDIKIterateOnce(goalPosition,tolerance)
 	local constraints = self.Constraints
 	local endEffectorPosition
 	if self.EndEffector then
@@ -153,7 +153,7 @@ function IKController:CCDIKIterateOnce(goalPosition,tolerance)
 end
 
 -- Same as Iterate once but in a while loop
-function IKController:CCDIKIterateUntil(goalPosition,tolerance,maxBreakCount)
+function CCDIKController:CCDIKIterateUntil(goalPosition,tolerance,maxBreakCount)
 	local maxBreakCount = maxBreakCount or 10
 	local currentIterationCount = 0
 	local constraints = self.Constraints
@@ -188,14 +188,14 @@ function IKController:CCDIKIterateUntil(goalPosition,tolerance,maxBreakCount)
 end
 
 
-function IKController.rotateJointFromTo(motor6DJoint,u,v,axis)
+function CCDIKController.rotateJointFromTo(motor6DJoint,u,v,axis)
 	local rotationCFrame = getRotationBetween(u,v,axis)
 	rotationCFrame = rotationCFrame*motor6DJoint.Part1.CFrame*motor6DJoint.Part0.CFrame:Inverse()
 	rotationCFrame = rotationCFrame-rotationCFrame.Position
 	motor6DJoint.C0 = CFrame.new(motor6DJoint.C0.Position)*rotationCFrame
 end
 
-function IKController:rotateJointFromToWithLerp(motor6DJoint,u,v,axis)
+function CCDIKController:rotateJointFromToWithLerp(motor6DJoint,u,v,axis)
 	local rotationCFrame = getRotationBetween(u,v,axis)
 	rotationCFrame = rotationCFrame*motor6DJoint.Part1.CFrame*motor6DJoint.Part0.CFrame:Inverse()
 	rotationCFrame = rotationCFrame-rotationCFrame.Position
@@ -204,7 +204,7 @@ function IKController:rotateJointFromToWithLerp(motor6DJoint,u,v,axis)
 	motor6DJoint.C0 = motor6DJoint.C0:Lerp(goalC0CFrame,lerpAlpha)
 end
 
-function IKController:RotateFromEffectorToGoal(motor6d : Motor6D,goalPosition)
+function CCDIKController:RotateFromEffectorToGoal(motor6d : Motor6D,goalPosition)
 
 	local motor6dPart0 = motor6d.Part0
 	local part0CF = motor6dPart0.CFrame
@@ -244,7 +244,7 @@ Dictionary to setup the constraint information:
 		["JointAttachment"] = nil;
 	};
 ]]
-function IKController:RotateToHingeAxis(motor6d : Motor6D,jointConstraintInfo)
+function CCDIKController:RotateToHingeAxis(motor6d : Motor6D,jointConstraintInfo)
 	local motor6dPart0 = motor6d.Part0
 	local part0CF = motor6dPart0.CFrame
 	local axisAttachment = jointConstraintInfo.AxisAttachment
@@ -292,7 +292,7 @@ Dictionary to setup the constraint information:
 		["JointAttachment"] = nil;
 	};
 ]]
-function IKController:RotateToBallSocketConstraintAxis(motor6d,jointConstraintInfo)
+function CCDIKController:RotateToBallSocketConstraintAxis(motor6d,jointConstraintInfo)
 	local motor6dPart0 = motor6d.Part0
 	local part0CF = motor6dPart0.CFrame
 	local axisAttachment = jointConstraintInfo.AxisAttachment
@@ -318,7 +318,7 @@ end
 --[[
 	Utility function spawning a wedge part to visualize a vector in world space
 ]]
-function IKController.VisualizeVector(position,direction,brickColor)
+function CCDIKController.VisualizeVector(position,direction,brickColor)
 	local wedgePart = Instance.new("WedgePart")
 	wedgePart.Size = Vector3.new(1,1,direction.Magnitude)
 	wedgePart.CFrame = CFLOOKAT(position,position+direction)*CFrame.new(0,0,-direction.Magnitude/2)
@@ -335,7 +335,7 @@ end
 	Usefull for creating HingeConstraints and BallSocketConstraints to visualize and orientate the attachments
 	Pretty necessary in fact to create the attachment axis and decide the upper angle or lower angle
 ]]
-function IKController.CommandBarSetupJoints(model)
+function CCDIKController.CommandBarSetupJoints(model)
 	local modelDescendants = model:GetDescendants()
 	for _,motor6D in pairs(modelDescendants) do
 		if motor6D:IsA("Motor6D") then
@@ -356,9 +356,9 @@ end
 --[[
 	Do cleaning destroys all the instances made by this object
 ]]
-function IKController:Destroy()
+function CCDIKController:Destroy()
 	self.Maid:DoCleaning()
 	self = nil
 end
 
-return IKController
+return CCDIKController

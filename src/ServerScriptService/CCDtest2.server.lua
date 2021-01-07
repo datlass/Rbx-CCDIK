@@ -3,7 +3,7 @@
 ]]
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local IKController = require(ReplicatedStorage.Source.IKController)
+local CCDIKController = require(ReplicatedStorage.Source.CCDIKController)
 
 local mech = workspace.Dummy
 local leftTarget = workspace.newTarget
@@ -38,7 +38,7 @@ local foot = mechMotor6Ds["LeftAnkle"]
 
 local fullLeg = {upperLeg,knee,foot}
 
-local leftLegController = IKController.new(fullLeg)
+local leftLegController = CCDIKController.new(fullLeg)
 
 local run = true
 while run do
