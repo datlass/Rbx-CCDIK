@@ -6,14 +6,6 @@ local CCDIKController = require(ReplicatedStorage.Source.CCDIKController)
 local mech = workspace.LowerBody
 local leftTarget = workspace.MechLTarget
 
---[[
-    --Motor6D Object value method, eh works but I'm lazy to setup :P
-local Motor6DValues = mech.Motor6DValues:GetChildren()
-for i,v in pairs (Motor6DValues) do
-    mechMotor6Ds[v.Name] = v.Value
-end
-]]
-
 local mechMotor6Ds = {}
 
 local mechDescendants = mech:GetDescendants()
@@ -28,6 +20,9 @@ local knee = mechMotor6Ds["LKnee"]
 local lowerLeg = mechMotor6Ds["LLowerLeg"]
 local foot = mechMotor6Ds["LFeet"]
 
+--[[
+    Not necessary you can use the new functions to setup the table for you given that the model is setup
+]]
 local constraints = {
     [upperLeg] = {
         ["ConstraintType"] = "BallSocketConstraint";
@@ -48,7 +43,9 @@ local constraints = {
 
 local fullLeg = {upperLeg,knee,lowerLeg,foot}
 
-local leftLegController = CCDIKController.new(fullLeg,constraints)
+local leftLegController = CCDIKController.new(fullLeg)
+leftLegController:GetConstraints()
+--leftLegController:GetConstraintsFromMotor(lowerLeg,"HingeConstraint")
 
 RunService.Heartbeat:Connect(function()
     local goal = leftTarget.Position

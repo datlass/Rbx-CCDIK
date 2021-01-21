@@ -71,7 +71,7 @@ function CCDIKController.new(Motor6DTable,Constraints)
 	self.Maid = Maid.new()
 	self.Motor6DTable = Motor6DTable
 	self.Constraints = Constraints
-	self:SetupJoints()
+	self.JointInfo, self.JointAxisInfo = self:SetupJoints() -- Creates instances make sure to clean up via :Destroy()
 	self.EndEffector = Motor6DTable[#Motor6DTable].Part1:FindFirstChild("EndEffector")
 	self.DebugMode = false
 	self.LerpMode = true
@@ -117,10 +117,79 @@ function CCDIKController:SetupJoints()
 			end
 		end
 	end
-	self.JointInfo = joints
-	self.JointAxisInfo = jointAxisInfo
+	--self.JointInfo = joints
+	--self.JointAxisInfo = jointAxisInfo
+	return joints, jointAxisInfo
 end
 
+--[[
+	Adds constraints settings from Roblox constraint instances already inside the model.
+]]
+function CCDIKController:GetConstraints()
+	if not self.Constraints then -- construct the constraint table if none
+		self.Constraints ={}
+	end
+	for _,motor in pairs(self.Motor6DTable) do
+		local motorPart0 : Part
+		motorPart0 = motor.Part0
+		local hingeConstraint = motorPart0:FindFirstChildWhichIsA("HingeConstraint")
+		local ballSocketConstraint = motorPart0:FindFirstChildWhichIsA("BallSocketConstraint")
+		if hingeConstraint then
+			self.Constraints[motor] = {
+				["ConstraintType"] = "Hinge";
+				["UpperAngle"] = hingeConstraint.UpperAngle; -- same as HingeConstraint [-180,180] degrees
+				["LowerAngle"] = hingeConstraint.LowerAngle;	
+				["AxisAttachment"] = hingeConstraint.Attachment0;
+				["JointAttachment"] = hingeConstraint.Attachment1;
+		
+			}
+		elseif ballSocketConstraint then
+			self.Constraints[motor] = {
+				["ConstraintType"] = "BallSocketConstraint";
+				["UpperAngle"] = ballSocketConstraint.UpperAngle; -- same as BallSocketConstraint [-180,180] degrees
+				["TwistLimitsEnabled"] = ballSocketConstraint.TwistLimitsEnabled ; -- still have no idea how to do
+				["TwistUpperAngle"] = ballSocketConstraint.TwistUpperAngle; -- so yeah no twist limits for now
+				["TwistLowerAngle"] = ballSocketConstraint.TwistLowerAngle;
+				["AxisAttachment"] = ballSocketConstraint.Attachment0; --Automatically tries to find first child during .new() setup but you can manually input it
+				["JointAttachment"] = ballSocketConstraint.Attachment1;	
+			}
+		end
+	end
+end
+
+--[[--------------------------------------------------------
+	Same as GetConstraints except uses :FindFirstChild() to find the roblox constraint and sets settings accordingly
+
+]]
+function CCDIKController:GetConstraintsFromMotor(motor : Motor6D ,constraintName : string)
+	if not self.Constraints then -- construct the constraint table if none
+		self.Constraints ={}
+	end
+	local constraint = motor.Part0:FindFirstChild(constraintName)
+	if constraint:IsA("HingeConstraint") then
+		self.Constraints[motor] = {
+			["ConstraintType"] = "Hinge";
+			["UpperAngle"] = constraint.UpperAngle; -- same as HingeConstraint [-180,180] degrees
+			["LowerAngle"] = constraint.LowerAngle;	
+			["AxisAttachment"] = constraint.Attachment0;
+			["JointAttachment"] = constraint.Attachment1;
+		}
+	elseif constraint:IsA("BallSocketConstraint") then
+		self.Constraints[motor] = {
+			["ConstraintType"] = "BallSocketConstraint";
+			["UpperAngle"] = constraint.UpperAngle; -- same as BallSocketConstraint [-180,180] degrees
+			["TwistLimitsEnabled"] = constraint.TwistLimitsEnabled ; -- still have no idea how to do
+			["TwistUpperAngle"] = constraint.TwistUpperAngle; -- so yeah no twist limits for now
+			["TwistLowerAngle"] = constraint.TwistLowerAngle;
+			["AxisAttachment"] = constraint.Attachment0; --Automatically tries to find first child during .new() setup but you can manually input it
+			["JointAttachment"] = constraint.Attachment1;	
+	}
+	end
+end
+
+--[[------------------------------
+
+]]
 function CCDIKController:CCDIKIterateOnce(goalPosition,tolerance)
 	local constraints = self.Constraints
 	local endEffectorPosition
