@@ -47,7 +47,7 @@ local leftLegController = CCDIKController.new(fullLeg)
 leftLegController:GetConstraints()
 --leftLegController:GetConstraintsFromMotor(lowerLeg,"HingeConstraint")
 
-RunService.Heartbeat:Connect(function()
+RunService.Heartbeat:Connect(function(step)
     local goal = leftTarget.Position
-    leftLegController:CCDIKIterateOnce(goal)
+    leftLegController:CCDIKIterateOnce(goal,nil,step)
 end)

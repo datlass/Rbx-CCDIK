@@ -3,6 +3,7 @@
 -- December 27, 2020
 
 local Debris = game:GetService("Debris")-- for debugging
+local RunService = game:GetService("RunService")
 
 local VectorUtil = require(script.VectorUtil)
 local Maid = require(script.Maid)
@@ -75,7 +76,10 @@ function CCDIKController.new(Motor6DTable,Constraints)
 	self.EndEffector = Motor6DTable[#Motor6DTable].Part1:FindFirstChild("EndEffector")
 	self.DebugMode = false
 	self.LerpMode = true
-	self.LerpAlpha = 0.25
+	self.LerpAlpha = 0.9
+
+	self.ConstantLerpSpeed = true
+	self.AngularSpeed = math.rad(90)
 
 	return self
 end
@@ -190,7 +194,7 @@ end
 --[[------------------------------
 
 ]]
-function CCDIKController:CCDIKIterateOnce(goalPosition,tolerance)
+function CCDIKController:CCDIKIterateOnce(goalPosition,tolerance,step)
 	local constraints = self.Constraints
 	local endEffectorPosition
 	if self.EndEffector then
@@ -205,7 +209,7 @@ function CCDIKController:CCDIKIterateOnce(goalPosition,tolerance)
 	if distanceToGoal.Magnitude > tolerance then
 		for i= #self.Motor6DTable-1, 1, -1 do
 			local currentJoint = self.Motor6DTable[i]
-			self:RotateFromEffectorToGoal(currentJoint,goalPosition)
+			self:RotateFromEffectorToGoal(currentJoint,goalPosition,step)
 			if constraints then
 				local jointConstraintInfo = constraints[currentJoint]
 				if jointConstraintInfo then
@@ -222,7 +226,7 @@ function CCDIKController:CCDIKIterateOnce(goalPosition,tolerance)
 end
 
 -- Same as Iterate once but in a while loop
-function CCDIKController:CCDIKIterateUntil(goalPosition,tolerance,maxBreakCount)
+function CCDIKController:CCDIKIterateUntil(goalPosition,tolerance,maxBreakCount,step)
 	local maxBreakCount = maxBreakCount or 10
 	local currentIterationCount = 0
 	local constraints = self.Constraints
@@ -240,7 +244,7 @@ function CCDIKController:CCDIKIterateUntil(goalPosition,tolerance,maxBreakCount)
 		currentIterationCount += 1
 		for i= #self.Motor6DTable-1, 1, -1 do
 			local currentJoint = self.Motor6DTable[i]
-			self:RotateFromEffectorToGoal(currentJoint,goalPosition)
+			self:RotateFromEffectorToGoal(currentJoint,goalPosition,step)
 			if constraints then
 				local jointConstraintInfo = constraints[currentJoint]
 				if jointConstraintInfo then
@@ -264,16 +268,29 @@ function CCDIKController.rotateJointFromTo(motor6DJoint,u,v,axis)
 	motor6DJoint.C0 = CFrame.new(motor6DJoint.C0.Position)*rotationCFrame
 end
 
-function CCDIKController:rotateJointFromToWithLerp(motor6DJoint,u,v,axis)
+--Controls the primary CCDIK Method but instead of going fully towards the goal it lerps slowly towards it instead
+function CCDIKController:rotateJointFromToWithLerp(motor6DJoint : Motor6D,u,v,axis,step)
 	local rotationCFrame = getRotationBetween(u,v,axis)
 	rotationCFrame = motor6DJoint.Part0.CFrame:Inverse()*rotationCFrame*motor6DJoint.Part1.CFrame
 	rotationCFrame = rotationCFrame-rotationCFrame.Position
 	local goalC0CFrame = CFrame.new(motor6DJoint.C0.Position)*rotationCFrame
 	local lerpAlpha = self.LerpAlpha
-	motor6DJoint.C0 = motor6DJoint.C0:Lerp(goalC0CFrame,lerpAlpha)
+
+	local currentC0 = motor6DJoint.C0
+
+	if step and self.ConstantLerpSpeed then
+		local angularDistance = VectorUtil.AngleBetween(currentC0.LookVector,goalC0CFrame.LookVector)
+		local estimatedTime = self.AngularSpeed/angularDistance
+		lerpAlpha = math.min(step*estimatedTime,1)
+	end
+
+	motor6DJoint.C0 = currentC0:Lerp(goalC0CFrame,lerpAlpha)
 end
 
-function CCDIKController:RotateFromEffectorToGoal(motor6d : Motor6D,goalPosition)
+--[[------------------------------
+	Primary joint movement method which performs the CCDIK algorithm of rotating a joint from end effector to goal
+]]
+function CCDIKController:RotateFromEffectorToGoal(motor6d : Motor6D,goalPosition,step)
 
 	local motor6dPart0 = motor6d.Part0
 	local part0CF = motor6dPart0.CFrame
@@ -297,7 +314,7 @@ function CCDIKController:RotateFromEffectorToGoal(motor6d : Motor6D,goalPosition
 	if self.LerpMode ~= true then
 		self.rotateJointFromTo(motor6d,directionToEffector,directionToGoal,part0CF.RightVector)
 	else
-		self:rotateJointFromToWithLerp(motor6d,directionToEffector,directionToGoal,part0CF.RightVector)
+		self:rotateJointFromToWithLerp(motor6d,directionToEffector,directionToGoal,part0CF.RightVector,step)
 	end
 end
 
@@ -381,6 +398,51 @@ function CCDIKController:RotateToBallSocketConstraintAxis(motor6d,jointConstrain
 		self.rotateJointFromTo(motor6d,currentCenterAxis,newCenterAxisWithinBounds,part0CF.RightVector)
 	end
 
+	--Now enforce twist limits
+	if jointConstraintInfo.TwistLimitsEnabled then
+
+		local axisCFrame = axisAttachment.WorldCFrame
+		local currentJointCFrame = jointAttachment.WorldCFrame 
+	
+		local twistSwingAxis = axisAttachment.WorldAxis
+		local function twistSwing(cf, direction)
+			local axis, theta = cf:ToAxisAngle()
+			local w, v = math.cos(theta/2),  math.sin(theta/2)*axis
+			local proj = v:Dot(direction)*direction
+			local twist = CFrame.new(cf.x, cf.y, cf.z, proj.x, proj.y, proj.z, w)
+			local swing = twist:Inverse() * cf
+			return swing, twist
+		end
+		local jointRelativeCFrame = axisCFrame:ToObjectSpace(currentJointCFrame)
+		local swing,twist = twistSwing(jointRelativeCFrame,twistSwingAxis)
+		local axis, angle = twist:ToAxisAngle()
+		local axisSign = math.sign(axis:Dot(twistSwingAxis))
+		axis, angle = axisSign*axis,axisSign*angle--make the signs relative to twist axis
+		angle = math.deg(angle)
+
+		local upperAngle = jointConstraintInfo.TwistUpperAngle
+		local lowerAngle = jointConstraintInfo.TwistLowerAngle
+		local notConstrained = false
+		if angle > upperAngle then
+			angle = upperAngle
+		elseif angle < lowerAngle then
+			angle = lowerAngle	
+		else
+			notConstrained = true
+		end
+
+		if not notConstrained then
+			angle = math.rad(angle)
+			local newTwist = CFrame.fromAxisAngle(axis,angle)
+			local newConstraintedRelativeCFrame = newTwist*swing
+			local newJointWorldCFrame = axisCFrame*newConstraintedRelativeCFrame
+			local part1CF = newJointWorldCFrame*jointAttachment.CFrame:Inverse()
+			local goalCF = motor6d.Part0.CFrame:Inverse()*part1CF
+			motor6d.C0 = CFNEW(motor6d.C0.Position)*(goalCF-goalCF.Position)
+		end
+	end
+
+
 end
 
 
@@ -398,6 +460,19 @@ function CCDIKController.VisualizeVector(position,direction,brickColor)
 	Debris:AddItem(wedgePart,1)
 end
 
+function CCDIKController:InitDragDebug()
+	local lastPart1 = self.Motor6DTable[#self.Motor6DTable].Part1
+
+	local dragMe = Instance.new("Part")
+	dragMe.Size = Vector3.new(1,1,1)
+	dragMe.BrickColor = BrickColor.random()
+	dragMe.Position = lastPart1.Position
+	dragMe.Name = "DragMe!: "..lastPart1.Name
+	dragMe.Parent=workspace
+	RunService.Heartbeat:Connect(function()
+		self:CCDIKIterateOnce(dragMe.Position,0.1)
+	end)
+end
 --[[---------------------------------------------------------
 	Reverse Humanoid:BuildRigFromAttachments
 	Finds Motor6D's and places where the joints are located as attachments
