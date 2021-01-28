@@ -45,6 +45,11 @@ local fullLeg = {upperLeg,knee,lowerLeg,foot}
 
 local leftLegController = CCDIKController.new(fullLeg)
 leftLegController:GetConstraints()
+
+local footParams = RaycastParams.new()
+footParams.FilterDescendantsInstances = {mech}
+local attachmentNames = {"A1","A2","A3"}
+leftLegController:SetupFoot(attachmentNames,footParams)
 --leftLegController:GetConstraintsFromMotor(lowerLeg,"HingeConstraint")
 
 RunService.Heartbeat:Connect(function(step)

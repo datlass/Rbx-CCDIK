@@ -22,7 +22,7 @@ local function fromToRotation(u,v,axis)
 		return CFrame.fromAxisAngle(u:Cross(v), math.acos(dot)*0.8)
 end
 
---Quanternion rotation version from Egomoose
+--Quaternion rotation version from Egomoose
 --The cooler version (⌐□_□)
 local function getRotationBetween(u, v, axis)
     local dot, uxv = u:Dot(v), u:Cross(v)
@@ -31,6 +31,7 @@ local function getRotationBetween(u, v, axis)
 end
 --[[
 	Amount is in radians
+	rotate vector around an axis
 ]]
 local function rotateVectorAround( v, amount, axis )
 	return CFrame.fromAxisAngle(axis, amount):VectorToWorldSpace(v)
@@ -39,6 +40,7 @@ end
 local CFNEW = CFrame.new
 local CFLOOKAT = CFrame.lookAt
 local ZEROVEC = Vector3.new()
+local DOWNVECTOR = Vector3.new(0,-1,0)
 
 --local motor6d = Instance.new("Motor6D")
 --Dictionary of how to setup the axis constraints
@@ -55,8 +57,8 @@ local constraintsTemplate = {
 	[hipJoint] = {
 		["ConstraintType"] = "BallSocketConstraint";
 		["UpperAngle"] = 45; -- same as BallSocketConstraint [-180,180] degrees
-		["TwistLimitsEnabled"] = false ; -- still have no idea how to do
-		["TwistUpperAngle"] = -45; -- so yeah no twist limits for now
+		["TwistLimitsEnabled"] = false ; -- yep same as roblox constraints
+		["TwistUpperAngle"] = 45; 
 		["TwistLowerAngle"] = -45;
 		["AxisAttachment"] = nil; --Automatically tries to find first child during .new() setup but you can manually input it
 		["JointAttachment"] = nil;
@@ -74,12 +76,24 @@ function CCDIKController.new(Motor6DTable,Constraints)
 	self.Constraints = Constraints
 	self.JointInfo, self.JointAxisInfo = self:SetupJoints() -- Creates instances make sure to clean up via :Destroy()
 	self.EndEffector = Motor6DTable[#Motor6DTable].Part1:FindFirstChild("EndEffector")
+	if not self.EndEffector then
+		local endEffector = Instance.new("Attachment")
+		endEffector.Name = "EndEffector"
+		endEffector.Parent = Motor6DTable[#Motor6DTable].Part1
+		self.Maid:GiveTask(endEffector)
+	end
+
 	self.DebugMode = false
 	self.LerpMode = true
 	self.LerpAlpha = 0.9
 
 	self.ConstantLerpSpeed = true
 	self.AngularSpeed = math.rad(90)
+
+	self.FootOrientationSystem = false
+	self.FootRaycastParams = RaycastParams.new()
+	self.RaycastLengthDown = 50
+	self._RayResultTable = {}
 
 	return self
 end
@@ -191,37 +205,61 @@ function CCDIKController:GetConstraintsFromMotor(motor : Motor6D ,constraintName
 	end
 end
 
---[[------------------------------
+function CCDIKController:_CCDIKIterateFoot(step)
+	local constraints = self.Constraints
+	local motor6DTable = self.Motor6DTable
+	local footJoint = motor6DTable[#motor6DTable]
+	self:OrientFootMotorToFloor(footJoint,step)
 
+	if constraints then
+		local jointConstraintInfo = constraints[footJoint]
+		if jointConstraintInfo then
+			if jointConstraintInfo.ConstraintType == "Hinge" then
+				self:RotateToHingeAxis(footJoint,jointConstraintInfo)
+			end
+			if jointConstraintInfo.ConstraintType == "BallSocketConstraint" then
+				self:RotateToBallSocketConstraintAxis(footJoint,jointConstraintInfo)
+			end
+		end
+	end
+end
+--[[
+	Performs one iteration of the CCDIK step regardless of the end condition
+]]
+function CCDIKController:_CCDIKIterateStep(goalPosition,step)
+	local constraints = self.Constraints
+	for i= #self.Motor6DTable-1, 1, -1 do
+		local currentJoint = self.Motor6DTable[i]
+		self:RotateFromEffectorToGoal(currentJoint,goalPosition,step)
+		if constraints then
+			local jointConstraintInfo = constraints[currentJoint]
+			if jointConstraintInfo then
+				if jointConstraintInfo.ConstraintType == "Hinge" then
+					self:RotateToHingeAxis(currentJoint,jointConstraintInfo)
+				end
+				if jointConstraintInfo.ConstraintType == "BallSocketConstraint" then
+					self:RotateToBallSocketConstraintAxis(currentJoint,jointConstraintInfo)
+				end
+			end
+		end
+	end
+end
+--[[------------------------------
+	Iterates only if goalPosition is not yet reached
 ]]
 function CCDIKController:CCDIKIterateOnce(goalPosition,tolerance,step)
-	local constraints = self.Constraints
-	local endEffectorPosition
-	if self.EndEffector then
-		endEffectorPosition = self.EndEffector.WorldPosition
-	else
-		endEffectorPosition = self.Motor6DTable[#self.Motor6DTable].Part1.Position
-	end
+	local endEffectorPosition = self.EndEffector.WorldPosition
 
 	local distanceToGoal = endEffectorPosition-goalPosition
 	local tolerance = tolerance or 1
 	
 	if distanceToGoal.Magnitude > tolerance then
-		for i= #self.Motor6DTable-1, 1, -1 do
-			local currentJoint = self.Motor6DTable[i]
-			self:RotateFromEffectorToGoal(currentJoint,goalPosition,step)
-			if constraints then
-				local jointConstraintInfo = constraints[currentJoint]
-				if jointConstraintInfo then
-					if jointConstraintInfo.ConstraintType == "Hinge" then
-						self:RotateToHingeAxis(currentJoint,jointConstraintInfo)
-					end
-					if jointConstraintInfo.ConstraintType == "BallSocketConstraint" then
-						self:RotateToBallSocketConstraintAxis(currentJoint,jointConstraintInfo)
-					end
-				end
-			end
-		end
+		self:_CCDIKIterateStep(goalPosition,step)
+	end
+
+	--Always attempt to orientate foot to floor
+	if self.FootOrientationSystem then
+		self:_CCDIKIterateFoot(step)
 	end
 end
 
@@ -229,34 +267,17 @@ end
 function CCDIKController:CCDIKIterateUntil(goalPosition,tolerance,maxBreakCount,step)
 	local maxBreakCount = maxBreakCount or 10
 	local currentIterationCount = 0
-	local constraints = self.Constraints
-	local endEffectorPosition
-	if self.EndEffector then
-		endEffectorPosition = self.EndEffector.WorldPosition
-	else
-		endEffectorPosition = self.Motor6DTable[#self.Motor6DTable].Part1.Position
-	end
+	local endEffectorPosition = self.EndEffector.WorldPosition
 
 	local distanceToGoal = endEffectorPosition-goalPosition
 	local tolerance = tolerance or 1
 	
 	while distanceToGoal.Magnitude > tolerance and maxBreakCount >= currentIterationCount do
 		currentIterationCount += 1
-		for i= #self.Motor6DTable-1, 1, -1 do
-			local currentJoint = self.Motor6DTable[i]
-			self:RotateFromEffectorToGoal(currentJoint,goalPosition,step)
-			if constraints then
-				local jointConstraintInfo = constraints[currentJoint]
-				if jointConstraintInfo then
-					if jointConstraintInfo.ConstraintType == "Hinge" then
-						self:RotateToHingeAxis(currentJoint,jointConstraintInfo)
-					end
-					if jointConstraintInfo.ConstraintType == "BallSocketConstraint" then
-						self:RotateToBallSocketConstraintAxis(currentJoint,jointConstraintInfo)
-					end
-				end
-			end
-		end
+		self:_CCDIKIterateStep(goalPosition,step)
+		if self.FootOrientationSystem then
+			self:_CCDIKIterateFoot(step)
+		end	
 	end
 end
 
@@ -270,6 +291,7 @@ end
 
 --Controls the primary CCDIK Method but instead of going fully towards the goal it lerps slowly towards it instead
 function CCDIKController:rotateJointFromToWithLerp(motor6DJoint : Motor6D,u,v,axis,step)
+
 	local rotationCFrame = getRotationBetween(u,v,axis)
 	rotationCFrame = motor6DJoint.Part0.CFrame:Inverse()*rotationCFrame*motor6DJoint.Part1.CFrame
 	rotationCFrame = rotationCFrame-rotationCFrame.Position
@@ -298,12 +320,7 @@ function CCDIKController:RotateFromEffectorToGoal(motor6d : Motor6D,goalPosition
 	local jointWorldPosition = self.JointInfo[motor6d].WorldPosition
 	--local jointWorldPosition = (motor6d.Part0.CFrame*motor6d.C0).Position
 	--Faster to use attachments
-	local endEffectorPosition
-	if self.EndEffector then
-		endEffectorPosition = self.EndEffector.WorldPosition
-	else
-		endEffectorPosition = self.Motor6DTable[#self.Motor6DTable].Part0.Position
-	end
+	local endEffectorPosition = self.EndEffector.WorldPosition
 
 	local directionToEffector = (endEffectorPosition - jointWorldPosition).Unit
 	local directionToGoal = (goalPosition - jointWorldPosition).Unit
@@ -444,8 +461,55 @@ function CCDIKController:RotateToBallSocketConstraintAxis(motor6d,jointConstrain
 
 
 end
+function CCDIKController:SetupFoot(attachmentNameTable : table,raycastParams)
+	local motor6DTable = self.Motor6DTable
+	local footJoint = motor6DTable[#motor6DTable]
+	local footPart = footJoint.Part1
+	local footAttachmentTable = {}
+	for i,attachmentName in pairs (attachmentNameTable) do
+		footAttachmentTable[i] = footPart:FindFirstChild(attachmentName)
+	end
+	self.FootAttachmentTable = footAttachmentTable
+	self.FootRaycastParams = raycastParams
+	self.FootOrientationSystem =true
+end
 
+function CCDIKController:OrientFootMotorToFloor(motor6d : Motor6D,step)
+	local attachmentTable = self.FootAttachmentTable
+	local lengthToFloor = self.RaycastLengthDown
+	local rayResultTable = self._RayResultTable
 
+	local raycastParams = self.FootRaycastParams
+	for i=1,3 do
+		local attachment = attachmentTable[i]
+		local rayOrigin = attachment.WorldPosition
+		local rayDown = -attachment.WorldCFrame.UpVector*lengthToFloor
+		rayResultTable[i] = workspace:Raycast(rayOrigin,rayDown,raycastParams)
+	end
+	local raycastNilCheck = (rayResultTable[1] and rayResultTable[2] and rayResultTable[3]) == nil
+
+	local footCFrame = self.EndEffector.WorldCFrame
+
+	local newUpVector = raycastNilCheck and footCFrame.UpVector or (rayResultTable[2].Position-rayResultTable[1].Position):Cross(rayResultTable[3].Position-rayResultTable[1].Position).Unit
+	
+	local currentFootUpVector = footCFrame.UpVector
+
+	self:rotateJointFromToWithLerp(motor6d,currentFootUpVector,newUpVector,footCFrame.UpVector,step)
+
+	--Then enforce constraints
+	local constraints = self.Constraints
+	if constraints then
+		local jointConstraintInfo = constraints[motor6d]
+		if jointConstraintInfo then
+			if jointConstraintInfo.ConstraintType == "Hinge" then
+				self:RotateToHingeAxis(motor6d,jointConstraintInfo)
+			end
+			if jointConstraintInfo.ConstraintType == "BallSocketConstraint" then
+				self:RotateToBallSocketConstraintAxis(motor6d,jointConstraintInfo)
+			end
+		end
+	end
+end
 --[[
 	Utility function spawning a wedge part to visualize a vector in world space
 ]]

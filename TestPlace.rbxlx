@@ -388,27 +388,27 @@ gcLgc4RKxr21zq2UlJSM]]></BinaryString>
 			<Properties>
 				<BinaryString name="AttributesSerialize"></BinaryString>
 				<CoordinateFrame name="CFrame">
-					<X>-57.6426392</X>
-					<Y>25.6560802</Y>
-					<Z>-13.0559864</Z>
-					<R00>-0.6943174</R00>
-					<R01>0.330480754</R01>
-					<R02>-0.639301121</R02>
-					<R10>-1.49011612e-08</R10>
-					<R11>0.888326705</R11>
-					<R12>0.459212184</R12>
-					<R20>0.719668984</R20>
-					<R21>0.318839014</R21>
-					<R22>-0.616780639</R22>
+					<X>-73.2243118</X>
+					<Y>19.792532</Y>
+					<Z>-8.74303436</Z>
+					<R00>-0.449451834</R00>
+					<R01>0.355309159</R01>
+					<R02>-0.819602668</R02>
+					<R10>-0</R10>
+					<R11>0.917495251</R11>
+					<R12>0.397746891</R12>
+					<R20>0.893304706</R20>
+					<R21>0.178768069</R21>
+					<R22>-0.412369817</R22>
 				</CoordinateFrame>
 				<Ref name="CameraSubject">null</Ref>
 				<token name="CameraType">0</token>
 				<float name="FieldOfView">70</float>
 				<token name="FieldOfViewMode">0</token>
 				<CoordinateFrame name="Focus">
-					<X>-56.3640366</X>
-					<Y>24.7376556</Y>
-					<Z>-11.8224249</Z>
+					<X>-71.5851059</X>
+					<Y>18.9970379</Y>
+					<Z>-7.91829443</Z>
 					<R00>1</R00>
 					<R01>0</R01>
 					<R02>0</R02>
@@ -6100,22 +6100,43 @@ Constraints system :P
 						<Properties>
 							<BinaryString name="AttributesSerialize"></BinaryString>
 							<CoordinateFrame name="CFrame">
-								<X>-0.00030708313</X>
-								<Y>-3.99973106</Y>
-								<Z>0.124941349</Z>
-								<R00>1</R00>
-								<R01>9.65575418e-06</R01>
-								<R02>8.44887109e-06</R02>
-								<R10>-9.65567233e-06</R10>
-								<R11>1</R11>
-								<R12>-9.65608615e-06</R12>
-								<R20>-8.44896476e-06</R20>
-								<R21>9.65600429e-06</R21>
+								<X>-0.000286102295</X>
+								<Y>-3.99972963</Y>
+								<Z>0.12492013</Z>
+								<R00>-1</R00>
+								<R01>1.80555559e-09</R01>
+								<R02>1.50091891e-18</R02>
+								<R10>-1.80555559e-09</R10>
+								<R11>-1</R11>
+								<R12>-8.31278157e-10</R12>
+								<R20>0</R20>
+								<R21>-8.31278157e-10</R21>
 								<R22>1</R22>
 							</CoordinateFrame>
 							<string name="Name">LLowerLegAxisAttachment</string>
 							<int64 name="SourceAssetId">-1</int64>
 							<BinaryString name="Tags"></BinaryString>
+							<bool name="Visible">false</bool>
+						</Properties>
+					</Item>
+					<Item class="BallSocketConstraint" referent="RBX2884515354344ca4a7091840af2f96a6">
+						<Properties>
+							<Ref name="Attachment0">RBX77b52dce036644969d9972d90c5ae234</Ref>
+							<Ref name="Attachment1">RBX9a019538cc3745e29aa472cfe38226ed</Ref>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<int name="Color">1009</int>
+							<bool name="Enabled">false</bool>
+							<bool name="LimitsEnabled">true</bool>
+							<float name="MaxFrictionTorqueXml">0</float>
+							<string name="Name">BallSocketConstraint</string>
+							<float name="Radius">0.150000006</float>
+							<float name="Restitution">0</float>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<bool name="TwistLimitsEnabled">true</bool>
+							<float name="TwistLowerAngle">-45</float>
+							<float name="TwistUpperAngle">45</float>
+							<float name="UpperAngle">10</float>
 							<bool name="Visible">false</bool>
 						</Properties>
 					</Item>
@@ -6201,20 +6222,20 @@ Constraints system :P
 						<Properties>
 							<BinaryString name="AttributesSerialize"></BinaryString>
 							<CoordinateFrame name="CFrame">
-								<X>0</X>
+								<X>-1.19994736</X>
 								<Y>-0.5</Y>
-								<Z>0</Z>
+								<Z>3.29992437</Z>
 								<R00>1</R00>
-								<R01>-9.33110256e-11</R01>
-								<R02>0</R02>
-								<R10>9.33110256e-11</R10>
+								<R01>-2.8692243e-10</R01>
+								<R02>-7.82850356e-21</R02>
+								<R10>2.8692243e-10</R10>
 								<R11>1</R11>
-								<R12>-0</R12>
+								<R12>2.728439e-11</R12>
 								<R20>0</R20>
-								<R21>0</R21>
+								<R21>-2.728439e-11</R21>
 								<R22>1</R22>
 							</CoordinateFrame>
-							<string name="Name">FootBottom</string>
+							<string name="Name">A1</string>
 							<int64 name="SourceAssetId">-1</int64>
 							<BinaryString name="Tags"></BinaryString>
 							<bool name="Visible">false</bool>
@@ -6224,20 +6245,20 @@ Constraints system :P
 						<Properties>
 							<BinaryString name="AttributesSerialize"></BinaryString>
 							<CoordinateFrame name="CFrame">
-								<X>0.100000001</X>
+								<X>1.49992752</X>
 								<Y>-0.5</Y>
-								<Z>0</Z>
+								<Z>3.39992237</Z>
 								<R00>1</R00>
-								<R01>-9.33110256e-11</R01>
-								<R02>0</R02>
-								<R10>9.33110256e-11</R10>
+								<R01>-2.8692243e-10</R01>
+								<R02>-7.82850356e-21</R02>
+								<R10>2.8692243e-10</R10>
 								<R11>1</R11>
-								<R12>-0</R12>
+								<R12>2.728439e-11</R12>
 								<R20>0</R20>
-								<R21>0</R21>
+								<R21>-2.728439e-11</R21>
 								<R22>1</R22>
 							</CoordinateFrame>
-							<string name="Name">FootBottomRight</string>
+							<string name="Name">A2</string>
 							<int64 name="SourceAssetId">-1</int64>
 							<BinaryString name="Tags"></BinaryString>
 							<bool name="Visible">false</bool>
@@ -6270,20 +6291,43 @@ Constraints system :P
 						<Properties>
 							<BinaryString name="AttributesSerialize"></BinaryString>
 							<CoordinateFrame name="CFrame">
-								<X>-2.56966832e-05</X>
-								<Y>1.25001359</Y>
-								<Z>1.49998796</Z>
-								<R00>1</R00>
-								<R01>-3.74649201e-11</R01>
-								<R02>0</R02>
-								<R10>3.74649201e-11</R10>
-								<R11>1</R11>
-								<R12>-0</R12>
-								<R20>0</R20>
-								<R21>0</R21>
+								<X>-3.05175781e-05</X>
+								<Y>1.25001526</Y>
+								<Z>1.49985588</Z>
+								<R00>-1</R00>
+								<R01>3.74691875e-11</R01>
+								<R02>1.3643045e-11</R02>
+								<R10>-3.74691909e-11</R10>
+								<R11>-1</R11>
+								<R12>1.1045205e-10</R12>
+								<R20>1.3643045e-11</R20>
+								<R21>1.1045205e-10</R21>
 								<R22>1</R22>
 							</CoordinateFrame>
 							<string name="Name">LLowerLegJointAttachment</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<bool name="Visible">false</bool>
+						</Properties>
+					</Item>
+					<Item class="Attachment" referent="RBXafb7bb22a7d84d36844517f4096aa054">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame">
+								<X>0.799945831</X>
+								<Y>-0.5</Y>
+								<Z>-3.69984674</Z>
+								<R00>1</R00>
+								<R01>-3.87223087e-10</R01>
+								<R02>-2.11298085e-20</R02>
+								<R10>3.87223087e-10</R10>
+								<R11>1</R11>
+								<R12>5.4567531e-11</R12>
+								<R20>0</R20>
+								<R21>-5.4567531e-11</R21>
+								<R22>1</R22>
+							</CoordinateFrame>
+							<string name="Name">A3</string>
 							<int64 name="SourceAssetId">-1</int64>
 							<BinaryString name="Tags"></BinaryString>
 							<bool name="Visible">false</bool>
@@ -7669,6 +7713,161 @@ Constraints system :P
 				</Item>
 			</Item>
 		</Item>
+		<Item class="WedgePart" referent="RBXc2913d8a531e40adbc316154010c7e7d">
+			<Properties>
+				<bool name="Anchored">true</bool>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<float name="BackParamA">-0.5</float>
+				<float name="BackParamB">0.5</float>
+				<token name="BackSurface">0</token>
+				<token name="BackSurfaceInput">0</token>
+				<float name="BottomParamA">-0.5</float>
+				<float name="BottomParamB">0.5</float>
+				<token name="BottomSurface">0</token>
+				<token name="BottomSurfaceInput">0</token>
+				<CoordinateFrame name="CFrame">
+					<X>-51.4500008</X>
+					<Y>3.45000005</Y>
+					<Z>23.8000031</Z>
+					<R00>1</R00>
+					<R01>0</R01>
+					<R02>0</R02>
+					<R10>0</R10>
+					<R11>1</R11>
+					<R12>0</R12>
+					<R20>0</R20>
+					<R21>0</R21>
+					<R22>1</R22>
+				</CoordinateFrame>
+				<bool name="CanCollide">true</bool>
+				<bool name="CanTouch">true</bool>
+				<bool name="CastShadow">true</bool>
+				<int name="CollisionGroupId">0</int>
+				<Color3uint8 name="Color3uint8">4288914085</Color3uint8>
+				<PhysicalProperties name="CustomPhysicalProperties">
+					<CustomPhysics>false</CustomPhysics>
+				</PhysicalProperties>
+				<float name="FrontParamA">-0.5</float>
+				<float name="FrontParamB">0.5</float>
+				<token name="FrontSurface">0</token>
+				<token name="FrontSurfaceInput">0</token>
+				<float name="LeftParamA">-0.5</float>
+				<float name="LeftParamB">0.5</float>
+				<token name="LeftSurface">0</token>
+				<token name="LeftSurfaceInput">0</token>
+				<bool name="Locked">false</bool>
+				<bool name="Massless">false</bool>
+				<token name="Material">256</token>
+				<string name="Name">Wedge</string>
+				<float name="Reflectance">0</float>
+				<float name="RightParamA">-0.5</float>
+				<float name="RightParamB">0.5</float>
+				<token name="RightSurface">0</token>
+				<token name="RightSurfaceInput">0</token>
+				<int name="RootPriority">0</int>
+				<Vector3 name="RotVelocity">
+					<X>0</X>
+					<Y>0</Y>
+					<Z>0</Z>
+				</Vector3>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+				<float name="TopParamA">-0.5</float>
+				<float name="TopParamB">0.5</float>
+				<token name="TopSurface">0</token>
+				<token name="TopSurfaceInput">0</token>
+				<float name="Transparency">0</float>
+				<Vector3 name="Velocity">
+					<X>0</X>
+					<Y>0</Y>
+					<Z>0</Z>
+				</Vector3>
+				<token name="formFactorRaw">1</token>
+				<Vector3 name="size">
+					<X>14.5</X>
+					<Y>6.9000001</Y>
+					<Z>13.3999996</Z>
+				</Vector3>
+			</Properties>
+		</Item>
+		<Item class="Part" referent="RBXc7acd8dddb47463dbcf0db8b8ee8dfe3">
+			<Properties>
+				<bool name="Anchored">true</bool>
+				<BinaryString name="AttributesSerialize"></BinaryString>
+				<float name="BackParamA">-0.5</float>
+				<float name="BackParamB">0.5</float>
+				<token name="BackSurface">0</token>
+				<token name="BackSurfaceInput">0</token>
+				<float name="BottomParamA">-0.5</float>
+				<float name="BottomParamB">0.5</float>
+				<token name="BottomSurface">0</token>
+				<token name="BottomSurfaceInput">0</token>
+				<CoordinateFrame name="CFrame">
+					<X>-57.0999908</X>
+					<Y>-2.00000048</Y>
+					<Z>5.30000305</Z>
+					<R00>1</R00>
+					<R01>0</R01>
+					<R02>0</R02>
+					<R10>0</R10>
+					<R11>1</R11>
+					<R12>0</R12>
+					<R20>0</R20>
+					<R21>0</R21>
+					<R22>1</R22>
+				</CoordinateFrame>
+				<bool name="CanCollide">true</bool>
+				<bool name="CanTouch">true</bool>
+				<bool name="CastShadow">true</bool>
+				<int name="CollisionGroupId">0</int>
+				<Color3uint8 name="Color3uint8">4280844103</Color3uint8>
+				<PhysicalProperties name="CustomPhysicalProperties">
+					<CustomPhysics>false</CustomPhysics>
+				</PhysicalProperties>
+				<float name="FrontParamA">-0.5</float>
+				<float name="FrontParamB">0.5</float>
+				<token name="FrontSurface">0</token>
+				<token name="FrontSurfaceInput">0</token>
+				<float name="LeftParamA">-0.5</float>
+				<float name="LeftParamB">0.5</float>
+				<token name="LeftSurface">0</token>
+				<token name="LeftSurfaceInput">0</token>
+				<bool name="Locked">false</bool>
+				<bool name="Massless">false</bool>
+				<token name="Material">256</token>
+				<string name="Name">Part</string>
+				<float name="Reflectance">0</float>
+				<float name="RightParamA">-0.5</float>
+				<float name="RightParamB">0.5</float>
+				<token name="RightSurface">0</token>
+				<token name="RightSurfaceInput">0</token>
+				<int name="RootPriority">0</int>
+				<Vector3 name="RotVelocity">
+					<X>0</X>
+					<Y>0</Y>
+					<Z>0</Z>
+				</Vector3>
+				<int64 name="SourceAssetId">-1</int64>
+				<BinaryString name="Tags"></BinaryString>
+				<float name="TopParamA">-0.5</float>
+				<float name="TopParamB">0.5</float>
+				<token name="TopSurface">0</token>
+				<token name="TopSurfaceInput">0</token>
+				<float name="Transparency">0</float>
+				<Vector3 name="Velocity">
+					<X>0</X>
+					<Y>0</Y>
+					<Z>0</Z>
+				</Vector3>
+				<token name="formFactorRaw">1</token>
+				<token name="shape">0</token>
+				<Vector3 name="size">
+					<X>12.1999998</X>
+					<Y>12.1999998</Y>
+					<Z>12.1999998</Z>
+				</Vector3>
+			</Properties>
+		</Item>
 	</Item>
 	<Item class="SoundService" referent="5">
 		<Properties>
@@ -8061,6 +8260,11 @@ local fullLeg = {upperLeg,knee,lowerLeg,foot}
 
 local leftLegController = CCDIKController.new(fullLeg)
 leftLegController:GetConstraints()
+
+local footParams = RaycastParams.new()
+footParams.FilterDescendantsInstances = {mech}
+local attachmentNames = {"A1","A2","A3"}
+leftLegController:SetupFoot(attachmentNames,footParams)
 --leftLegController:GetConstraintsFromMotor(lowerLeg,"HingeConstraint")
 
 RunService.Heartbeat:Connect(function(step)
@@ -8474,7 +8678,7 @@ local function fromToRotation(u,v,axis)
 		return CFrame.fromAxisAngle(u:Cross(v), math.acos(dot)*0.8)
 end
 
---Quanternion rotation version from Egomoose
+--Quaternion rotation version from Egomoose
 --The cooler version (⌐□_□)
 local function getRotationBetween(u, v, axis)
     local dot, uxv = u:Dot(v), u:Cross(v)
@@ -8483,6 +8687,7 @@ local function getRotationBetween(u, v, axis)
 end
 --[[
 	Amount is in radians
+	rotate vector around an axis
 ]]
 local function rotateVectorAround( v, amount, axis )
 	return CFrame.fromAxisAngle(axis, amount):VectorToWorldSpace(v)
@@ -8491,6 +8696,7 @@ end
 local CFNEW = CFrame.new
 local CFLOOKAT = CFrame.lookAt
 local ZEROVEC = Vector3.new()
+local DOWNVECTOR = Vector3.new(0,-1,0)
 
 --local motor6d = Instance.new("Motor6D")
 --Dictionary of how to setup the axis constraints
@@ -8507,8 +8713,8 @@ local constraintsTemplate = {
 	[hipJoint] = {
 		["ConstraintType"] = "BallSocketConstraint";
 		["UpperAngle"] = 45; -- same as BallSocketConstraint [-180,180] degrees
-		["TwistLimitsEnabled"] = false ; -- still have no idea how to do
-		["TwistUpperAngle"] = -45; -- so yeah no twist limits for now
+		["TwistLimitsEnabled"] = false ; -- yep same as roblox constraints
+		["TwistUpperAngle"] = 45; 
 		["TwistLowerAngle"] = -45;
 		["AxisAttachment"] = nil; --Automatically tries to find first child during .new() setup but you can manually input it
 		["JointAttachment"] = nil;
@@ -8526,12 +8732,24 @@ function CCDIKController.new(Motor6DTable,Constraints)
 	self.Constraints = Constraints
 	self.JointInfo, self.JointAxisInfo = self:SetupJoints() -- Creates instances make sure to clean up via :Destroy()
 	self.EndEffector = Motor6DTable[#Motor6DTable].Part1:FindFirstChild("EndEffector")
+	if not self.EndEffector then
+		local endEffector = Instance.new("Attachment")
+		endEffector.Name = "EndEffector"
+		endEffector.Parent = Motor6DTable[#Motor6DTable].Part1
+		self.Maid:GiveTask(endEffector)
+	end
+
 	self.DebugMode = false
 	self.LerpMode = true
 	self.LerpAlpha = 0.9
 
 	self.ConstantLerpSpeed = true
 	self.AngularSpeed = math.rad(90)
+
+	self.FootOrientationSystem = false
+	self.FootRaycastParams = RaycastParams.new()
+	self.RaycastLengthDown = 50
+	self._RayResultTable = {}
 
 	return self
 end
@@ -8643,37 +8861,61 @@ function CCDIKController:GetConstraintsFromMotor(motor : Motor6D ,constraintName
 	end
 end
 
---[[------------------------------
+function CCDIKController:_CCDIKIterateFoot(step)
+	local constraints = self.Constraints
+	local motor6DTable = self.Motor6DTable
+	local footJoint = motor6DTable[#motor6DTable]
+	self:OrientFootMotorToFloor(footJoint,step)
 
+	if constraints then
+		local jointConstraintInfo = constraints[footJoint]
+		if jointConstraintInfo then
+			if jointConstraintInfo.ConstraintType == "Hinge" then
+				self:RotateToHingeAxis(footJoint,jointConstraintInfo)
+			end
+			if jointConstraintInfo.ConstraintType == "BallSocketConstraint" then
+				self:RotateToBallSocketConstraintAxis(footJoint,jointConstraintInfo)
+			end
+		end
+	end
+end
+--[[
+	Performs one iteration of the CCDIK step regardless of the end condition
+]]
+function CCDIKController:_CCDIKIterateStep(goalPosition,step)
+	local constraints = self.Constraints
+	for i= #self.Motor6DTable-1, 1, -1 do
+		local currentJoint = self.Motor6DTable[i]
+		self:RotateFromEffectorToGoal(currentJoint,goalPosition,step)
+		if constraints then
+			local jointConstraintInfo = constraints[currentJoint]
+			if jointConstraintInfo then
+				if jointConstraintInfo.ConstraintType == "Hinge" then
+					self:RotateToHingeAxis(currentJoint,jointConstraintInfo)
+				end
+				if jointConstraintInfo.ConstraintType == "BallSocketConstraint" then
+					self:RotateToBallSocketConstraintAxis(currentJoint,jointConstraintInfo)
+				end
+			end
+		end
+	end
+end
+--[[------------------------------
+	Iterates only if goalPosition is not yet reached
 ]]
 function CCDIKController:CCDIKIterateOnce(goalPosition,tolerance,step)
-	local constraints = self.Constraints
-	local endEffectorPosition
-	if self.EndEffector then
-		endEffectorPosition = self.EndEffector.WorldPosition
-	else
-		endEffectorPosition = self.Motor6DTable[#self.Motor6DTable].Part1.Position
-	end
+	local endEffectorPosition = self.EndEffector.WorldPosition
 
 	local distanceToGoal = endEffectorPosition-goalPosition
 	local tolerance = tolerance or 1
 	
 	if distanceToGoal.Magnitude > tolerance then
-		for i= #self.Motor6DTable-1, 1, -1 do
-			local currentJoint = self.Motor6DTable[i]
-			self:RotateFromEffectorToGoal(currentJoint,goalPosition,step)
-			if constraints then
-				local jointConstraintInfo = constraints[currentJoint]
-				if jointConstraintInfo then
-					if jointConstraintInfo.ConstraintType == "Hinge" then
-						self:RotateToHingeAxis(currentJoint,jointConstraintInfo)
-					end
-					if jointConstraintInfo.ConstraintType == "BallSocketConstraint" then
-						self:RotateToBallSocketConstraintAxis(currentJoint,jointConstraintInfo)
-					end
-				end
-			end
-		end
+		self:_CCDIKIterateStep(goalPosition,step)
+	end
+
+	--Always attempt to orientate foot to floor
+	if self.FootOrientationSystem then
+		self:_CCDIKIterateFoot(step)
 	end
 end
 
@@ -8681,34 +8923,17 @@ end
 function CCDIKController:CCDIKIterateUntil(goalPosition,tolerance,maxBreakCount,step)
 	local maxBreakCount = maxBreakCount or 10
 	local currentIterationCount = 0
-	local constraints = self.Constraints
-	local endEffectorPosition
-	if self.EndEffector then
-		endEffectorPosition = self.EndEffector.WorldPosition
-	else
-		endEffectorPosition = self.Motor6DTable[#self.Motor6DTable].Part1.Position
-	end
+	local endEffectorPosition = self.EndEffector.WorldPosition
 
 	local distanceToGoal = endEffectorPosition-goalPosition
 	local tolerance = tolerance or 1
 	
 	while distanceToGoal.Magnitude > tolerance and maxBreakCount >= currentIterationCount do
 		currentIterationCount += 1
-		for i= #self.Motor6DTable-1, 1, -1 do
-			local currentJoint = self.Motor6DTable[i]
-			self:RotateFromEffectorToGoal(currentJoint,goalPosition,step)
-			if constraints then
-				local jointConstraintInfo = constraints[currentJoint]
-				if jointConstraintInfo then
-					if jointConstraintInfo.ConstraintType == "Hinge" then
-						self:RotateToHingeAxis(currentJoint,jointConstraintInfo)
-					end
-					if jointConstraintInfo.ConstraintType == "BallSocketConstraint" then
-						self:RotateToBallSocketConstraintAxis(currentJoint,jointConstraintInfo)
-					end
-				end
-			end
-		end
+		self:_CCDIKIterateStep(goalPosition,step)
+		if self.FootOrientationSystem then
+			self:_CCDIKIterateFoot(step)
+		end	
 	end
 end
 
@@ -8722,6 +8947,7 @@ end
 
 --Controls the primary CCDIK Method but instead of going fully towards the goal it lerps slowly towards it instead
 function CCDIKController:rotateJointFromToWithLerp(motor6DJoint : Motor6D,u,v,axis,step)
+
 	local rotationCFrame = getRotationBetween(u,v,axis)
 	rotationCFrame = motor6DJoint.Part0.CFrame:Inverse()*rotationCFrame*motor6DJoint.Part1.CFrame
 	rotationCFrame = rotationCFrame-rotationCFrame.Position
@@ -8750,12 +8976,7 @@ function CCDIKController:RotateFromEffectorToGoal(motor6d : Motor6D,goalPosition
 	local jointWorldPosition = self.JointInfo[motor6d].WorldPosition
 	--local jointWorldPosition = (motor6d.Part0.CFrame*motor6d.C0).Position
 	--Faster to use attachments
-	local endEffectorPosition
-	if self.EndEffector then
-		endEffectorPosition = self.EndEffector.WorldPosition
-	else
-		endEffectorPosition = self.Motor6DTable[#self.Motor6DTable].Part0.Position
-	end
+	local endEffectorPosition = self.EndEffector.WorldPosition
 
 	local directionToEffector = (endEffectorPosition - jointWorldPosition).Unit
 	local directionToGoal = (goalPosition - jointWorldPosition).Unit
@@ -8896,8 +9117,55 @@ function CCDIKController:RotateToBallSocketConstraintAxis(motor6d,jointConstrain
 
 
 end
+function CCDIKController:SetupFoot(attachmentNameTable : table,raycastParams)
+	local motor6DTable = self.Motor6DTable
+	local footJoint = motor6DTable[#motor6DTable]
+	local footPart = footJoint.Part1
+	local footAttachmentTable = {}
+	for i,attachmentName in pairs (attachmentNameTable) do
+		footAttachmentTable[i] = footPart:FindFirstChild(attachmentName)
+	end
+	self.FootAttachmentTable = footAttachmentTable
+	self.FootRaycastParams = raycastParams
+	self.FootOrientationSystem =true
+end
 
+function CCDIKController:OrientFootMotorToFloor(motor6d : Motor6D,step)
+	local attachmentTable = self.FootAttachmentTable
+	local lengthToFloor = self.RaycastLengthDown
+	local rayResultTable = self._RayResultTable
 
+	local raycastParams = self.FootRaycastParams
+	for i=1,3 do
+		local attachment = attachmentTable[i]
+		local rayOrigin = attachment.WorldPosition
+		local rayDown = -attachment.WorldCFrame.UpVector*lengthToFloor
+		rayResultTable[i] = workspace:Raycast(rayOrigin,rayDown,raycastParams)
+	end
+	local raycastNilCheck = (rayResultTable[1] and rayResultTable[2] and rayResultTable[3]) == nil
+
+	local footCFrame = self.EndEffector.WorldCFrame
+
+	local newUpVector = raycastNilCheck and footCFrame.UpVector or (rayResultTable[2].Position-rayResultTable[1].Position):Cross(rayResultTable[3].Position-rayResultTable[1].Position).Unit
+	
+	local currentFootUpVector = footCFrame.UpVector
+
+	self:rotateJointFromToWithLerp(motor6d,currentFootUpVector,newUpVector,footCFrame.UpVector,step)
+
+	--Then enforce constraints
+	local constraints = self.Constraints
+	if constraints then
+		local jointConstraintInfo = constraints[motor6d]
+		if jointConstraintInfo then
+			if jointConstraintInfo.ConstraintType == "Hinge" then
+				self:RotateToHingeAxis(motor6d,jointConstraintInfo)
+			end
+			if jointConstraintInfo.ConstraintType == "BallSocketConstraint" then
+				self:RotateToBallSocketConstraintAxis(motor6d,jointConstraintInfo)
+			end
+		end
+	end
+end
 --[[
 	Utility function spawning a wedge part to visualize a vector in world space
 ]]
