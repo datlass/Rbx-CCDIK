@@ -80,6 +80,7 @@ function CCDIKController.new(Motor6DTable,Constraints)
 		local endEffector = Instance.new("Attachment")
 		endEffector.Name = "EndEffector"
 		endEffector.Parent = Motor6DTable[#Motor6DTable].Part1
+		self.EndEffector = endEffector
 		self.Maid:GiveTask(endEffector)
 	end
 
@@ -205,6 +206,9 @@ function CCDIKController:GetConstraintsFromMotor(motor : Motor6D ,constraintName
 	end
 end
 
+--[[
+	Internal function for CCDIK Iteration step
+]]
 function CCDIKController:_CCDIKIterateFoot(step)
 	local constraints = self.Constraints
 	local motor6DTable = self.Motor6DTable
@@ -461,6 +465,10 @@ function CCDIKController:RotateToBallSocketConstraintAxis(motor6d,jointConstrain
 
 
 end
+
+--[[
+	Finds the attachments in the part1 foot and the raycasting params the system uses
+]]
 function CCDIKController:SetupFoot(attachmentNameTable : table,raycastParams)
 	local motor6DTable = self.Motor6DTable
 	local footJoint = motor6DTable[#motor6DTable]
@@ -510,19 +518,6 @@ function CCDIKController:OrientFootMotorToFloor(motor6d : Motor6D,step)
 		end
 	end
 end
---[[
-	Utility function spawning a wedge part to visualize a vector in world space
-]]
-function CCDIKController.VisualizeVector(position,direction,brickColor)
-	local wedgePart = Instance.new("WedgePart")
-	wedgePart.Size = Vector3.new(1,1,direction.Magnitude)
-	wedgePart.CFrame = CFLOOKAT(position,position+direction)*CFrame.new(0,0,-direction.Magnitude/2)
-	wedgePart.Anchored = true
-	wedgePart.CanCollide = false
-	wedgePart.BrickColor = brickColor or BrickColor.random()
-	wedgePart.Parent = workspace
-	Debris:AddItem(wedgePart,1)
-end
 
 function CCDIKController:InitDragDebug()
 	local lastPart1 = self.Motor6DTable[#self.Motor6DTable].Part1
@@ -560,6 +555,20 @@ function CCDIKController.CommandBarSetupJoints(model)
 			JointAttachment.Parent = motor6D.Part1
 		end
 	end
+end
+
+--[[
+	Utility function spawning a wedge part to visualize a vector in world space
+]]
+function CCDIKController.VisualizeVector(position,direction,brickColor)
+	local wedgePart = Instance.new("WedgePart")
+	wedgePart.Size = Vector3.new(1,1,direction.Magnitude)
+	wedgePart.CFrame = CFLOOKAT(position,position+direction)*CFrame.new(0,0,-direction.Magnitude/2)
+	wedgePart.Anchored = true
+	wedgePart.CanCollide = false
+	wedgePart.BrickColor = brickColor or BrickColor.random()
+	wedgePart.Parent = workspace
+	Debris:AddItem(wedgePart,1)
 end
 --[[
 	Do cleaning destroys all the instances made by this object

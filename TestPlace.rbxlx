@@ -388,27 +388,27 @@ gcLgc4RKxr21zq2UlJSM]]></BinaryString>
 			<Properties>
 				<BinaryString name="AttributesSerialize"></BinaryString>
 				<CoordinateFrame name="CFrame">
-					<X>-73.2243118</X>
-					<Y>19.792532</Y>
-					<Z>-8.74303436</Z>
-					<R00>-0.449451834</R00>
-					<R01>0.355309159</R01>
-					<R02>-0.819602668</R02>
+					<X>-71.8500977</X>
+					<Y>22.6322384</Y>
+					<Z>-21.173811</Z>
+					<R00>-0.696934223</R00>
+					<R01>0.189534336</R01>
+					<R02>-0.69163537</R02>
 					<R10>-0</R10>
-					<R11>0.917495251</R11>
-					<R12>0.397746891</R12>
-					<R20>0.893304706</R20>
-					<R21>0.178768069</R21>
-					<R22>-0.412369817</R22>
+					<R11>0.964442253</R11>
+					<R12>0.26429376</R12>
+					<R20>0.717135131</R20>
+					<R21>0.184195369</R21>
+					<R22>-0.672152758</R22>
 				</CoordinateFrame>
 				<Ref name="CameraSubject">null</Ref>
 				<token name="CameraType">0</token>
 				<float name="FieldOfView">70</float>
 				<token name="FieldOfViewMode">0</token>
 				<CoordinateFrame name="Focus">
-					<X>-71.5851059</X>
-					<Y>18.9970379</Y>
-					<Z>-7.91829443</Z>
+					<X>-70.4668274</X>
+					<Y>22.103651</Y>
+					<Z>-19.8295059</Z>
 					<R00>1</R00>
 					<R01>0</R01>
 					<R02>0</R02>
@@ -6264,29 +6264,6 @@ Constraints system :P
 							<bool name="Visible">false</bool>
 						</Properties>
 					</Item>
-					<Item class="Attachment" referent="RBXbac0d5ee0aee46a191320affbeb16093">
-						<Properties>
-							<BinaryString name="AttributesSerialize"></BinaryString>
-							<CoordinateFrame name="CFrame">
-								<X>0</X>
-								<Y>0</Y>
-								<Z>-2.19991922</Z>
-								<R00>1</R00>
-								<R01>-2.06942463e-09</R01>
-								<R02>-2.34530778e-20</R02>
-								<R10>2.06942463e-09</R10>
-								<R11>1</R11>
-								<R12>7.63934679e-11</R12>
-								<R20>-1.34637448e-19</R20>
-								<R21>-7.63934679e-11</R21>
-								<R22>1</R22>
-							</CoordinateFrame>
-							<string name="Name">EndEffector</string>
-							<int64 name="SourceAssetId">-1</int64>
-							<BinaryString name="Tags"></BinaryString>
-							<bool name="Visible">false</bool>
-						</Properties>
-					</Item>
 					<Item class="Attachment" referent="RBX9a019538cc3745e29aa472cfe38226ed">
 						<Properties>
 							<BinaryString name="AttributesSerialize"></BinaryString>
@@ -6295,7 +6272,7 @@ Constraints system :P
 								<Y>1.25001526</Y>
 								<Z>1.49985588</Z>
 								<R00>-1</R00>
-								<R01>3.74691875e-11</R01>
+								<R01>3.74691909e-11</R01>
 								<R02>1.3643045e-11</R02>
 								<R10>-3.74691909e-11</R10>
 								<R11>-1</R11>
@@ -6328,6 +6305,29 @@ Constraints system :P
 								<R22>1</R22>
 							</CoordinateFrame>
 							<string name="Name">A3</string>
+							<int64 name="SourceAssetId">-1</int64>
+							<BinaryString name="Tags"></BinaryString>
+							<bool name="Visible">false</bool>
+						</Properties>
+					</Item>
+					<Item class="Attachment" referent="RBXab5f4e719695443a99e5ce274da360b1">
+						<Properties>
+							<BinaryString name="AttributesSerialize"></BinaryString>
+							<CoordinateFrame name="CFrame">
+								<X>0</X>
+								<Y>0</Y>
+								<Z>-1.69996119</Z>
+								<R00>1</R00>
+								<R01>-9.68024549e-11</R01>
+								<R02>-1.32061303e-21</R02>
+								<R10>9.6802448e-11</R10>
+								<R11>1</R11>
+								<R12>1.36423511e-11</R12>
+								<R20>0</R20>
+								<R21>-1.36423511e-11</R21>
+								<R22>1</R22>
+							</CoordinateFrame>
+							<string name="Name">EndEffector</string>
 							<int64 name="SourceAssetId">-1</int64>
 							<BinaryString name="Tags"></BinaryString>
 							<bool name="Visible">false</bool>
@@ -8736,6 +8736,7 @@ function CCDIKController.new(Motor6DTable,Constraints)
 		local endEffector = Instance.new("Attachment")
 		endEffector.Name = "EndEffector"
 		endEffector.Parent = Motor6DTable[#Motor6DTable].Part1
+		self.EndEffector = endEffector
 		self.Maid:GiveTask(endEffector)
 	end
 
@@ -8861,6 +8862,9 @@ function CCDIKController:GetConstraintsFromMotor(motor : Motor6D ,constraintName
 	end
 end
 
+--[[
+	Internal function for CCDIK Iteration step
+]]
 function CCDIKController:_CCDIKIterateFoot(step)
 	local constraints = self.Constraints
 	local motor6DTable = self.Motor6DTable
@@ -9117,6 +9121,10 @@ function CCDIKController:RotateToBallSocketConstraintAxis(motor6d,jointConstrain
 
 
 end
+
+--[[
+	Finds the attachments in the part1 foot and the raycasting params the system uses
+]]
 function CCDIKController:SetupFoot(attachmentNameTable : table,raycastParams)
 	local motor6DTable = self.Motor6DTable
 	local footJoint = motor6DTable[#motor6DTable]
@@ -9166,19 +9174,6 @@ function CCDIKController:OrientFootMotorToFloor(motor6d : Motor6D,step)
 		end
 	end
 end
---[[
-	Utility function spawning a wedge part to visualize a vector in world space
-]]
-function CCDIKController.VisualizeVector(position,direction,brickColor)
-	local wedgePart = Instance.new("WedgePart")
-	wedgePart.Size = Vector3.new(1,1,direction.Magnitude)
-	wedgePart.CFrame = CFLOOKAT(position,position+direction)*CFrame.new(0,0,-direction.Magnitude/2)
-	wedgePart.Anchored = true
-	wedgePart.CanCollide = false
-	wedgePart.BrickColor = brickColor or BrickColor.random()
-	wedgePart.Parent = workspace
-	Debris:AddItem(wedgePart,1)
-end
 
 function CCDIKController:InitDragDebug()
 	local lastPart1 = self.Motor6DTable[#self.Motor6DTable].Part1
@@ -9216,6 +9211,20 @@ function CCDIKController.CommandBarSetupJoints(model)
 			JointAttachment.Parent = motor6D.Part1
 		end
 	end
+end
+
+--[[
+	Utility function spawning a wedge part to visualize a vector in world space
+]]
+function CCDIKController.VisualizeVector(position,direction,brickColor)
+	local wedgePart = Instance.new("WedgePart")
+	wedgePart.Size = Vector3.new(1,1,direction.Magnitude)
+	wedgePart.CFrame = CFLOOKAT(position,position+direction)*CFrame.new(0,0,-direction.Magnitude/2)
+	wedgePart.Anchored = true
+	wedgePart.CanCollide = false
+	wedgePart.BrickColor = brickColor or BrickColor.random()
+	wedgePart.Parent = workspace
+	Debris:AddItem(wedgePart,1)
 end
 --[[
 	Do cleaning destroys all the instances made by this object
