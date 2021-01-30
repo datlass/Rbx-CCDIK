@@ -1,0 +1,740 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+      <link rel="shortcut icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.2.5">
+    
+    
+      
+        <title>CCDIKController Setup Example - My Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.15aa0b43.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.75751829.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono",SFMono-Regular,Consolas,Menlo,monospace}</style>
+      
+    
+    
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+      
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ccdikcontroller-setup-example" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid" aria-label="Header">
+    <a href=".." title="My Docs" class="md-header-nav__button md-logo" aria-label="My Docs">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header-nav__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header-nav__title" data-md-component="header-title">
+      <div class="md-header-nav__ellipsis">
+        <div class="md-header-nav__topic">
+          <span class="md-ellipsis">
+            My Docs
+          </span>
+        </div>
+        <div class="md-header-nav__topic">
+          <span class="md-ellipsis">
+            
+              CCDIKController Setup Example
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <label class="md-header-nav__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" data-md-component="search-reset" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header-nav__source">
+        
+<a href="https://github.com/datlass/Rbx-CCDIK/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    datlass/Rbx-CCDIK
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="My Docs" class="md-nav__button md-logo" aria-label="My Docs">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    My Docs
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/datlass/Rbx-CCDIK/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    datlass/Rbx-CCDIK
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          CCDIKController Setup Example
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        CCDIKController Setup Example
+      </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#making-the-left-leg-move" class="md-nav__link">
+    Making the left leg move:
+  </a>
+  
+    <nav class="md-nav" aria-label="Making the left leg move:">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-identify-and-obtain-the-motor6d-joints-of-the-rig" class="md-nav__link">
+    1. Identify and obtain the Motor6D Joints of the Rig
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-create-the-ccdik-object" class="md-nav__link">
+    2. Create the CCDIK Object:
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-let-it-rip" class="md-nav__link">
+    3. Let it rip
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#full-code-sample" class="md-nav__link">
+    Full Code Sample
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setting-up-the-constraints" class="md-nav__link">
+    Setting up the Constraints:
+  </a>
+  
+    <nav class="md-nav" aria-label="Setting up the Constraints:">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-inserting-the-roblox-physics-constraint-instance" class="md-nav__link">
+    1. Inserting the Roblox Physics Constraint Instance
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-setup-the-code-and-run" class="md-nav__link">
+    2. Setup the code and run
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-note-the-special-cases" class="md-nav__link">
+    3. Note the special cases
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#foot-placement-system" class="md-nav__link">
+    Foot placement System
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../API/" class="md-nav__link">
+        CCDIKClass API
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#making-the-left-leg-move" class="md-nav__link">
+    Making the left leg move:
+  </a>
+  
+    <nav class="md-nav" aria-label="Making the left leg move:">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-identify-and-obtain-the-motor6d-joints-of-the-rig" class="md-nav__link">
+    1. Identify and obtain the Motor6D Joints of the Rig
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-create-the-ccdik-object" class="md-nav__link">
+    2. Create the CCDIK Object:
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-let-it-rip" class="md-nav__link">
+    3. Let it rip
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#full-code-sample" class="md-nav__link">
+    Full Code Sample
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setting-up-the-constraints" class="md-nav__link">
+    Setting up the Constraints:
+  </a>
+  
+    <nav class="md-nav" aria-label="Setting up the Constraints:">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-inserting-the-roblox-physics-constraint-instance" class="md-nav__link">
+    1. Inserting the Roblox Physics Constraint Instance
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-setup-the-code-and-run" class="md-nav__link">
+    2. Setup the code and run
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-note-the-special-cases" class="md-nav__link">
+    3. Note the special cases
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#foot-placement-system" class="md-nav__link">
+    Foot placement System
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/datlass/Rbx-CCDIK/edit/master/docs/BasicSetupTutorial.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                <h1 id="ccdikcontroller-setup-example">CCDIKController Setup Example</h1>
+<p>Prior to setting up the inverse kinematics for your rig we will first well...a rig.</p>
+<p>Mech Rig Illustration through RigEdit lite:</p>
+<p><img alt="Screenshot" src="../img/MechRigImage.png" style="height:500px;width:500px" /></p>
+<p>In this setup tutorial I will be using the R15 dummy as it is a rig that everyone has access to. </p>
+<p><img alt="Screenshot" src="../img/R15RigImage.png" style="height:300px;width:500px" /></p>
+<p>The results of this tutorial can be seen in the test place through the disabled server script called R15Tutorial1 within the test place given.</p>
+<h2 id="making-the-left-leg-move">Making the left leg move:</h2>
+<hr />
+<h4 id="1-identify-and-obtain-the-motor6d-joints-of-the-rig">1. Identify and obtain the Motor6D Joints of the Rig</h4>
+<p>For the R15 Dummy in order to control the left leg this will consist of the following motors:
+LeftHip,LeftKnee,LeftAnkle.</p>
+<p>Here is how I did it using using a for loop, and a dictionary to make it easier: </p>
+<pre><code class="language-lua">local dummy = workspace.Dummy
+
+local dummyMotor6Ds = {}
+
+local dummyDescendants = dummy:GetDescendants()
+for _,descendant in pairs (dummyDescendants) do
+    if descendant:IsA(&quot;Motor6D&quot;) then
+        dummyMotor6Ds[descendant.Name] = descendant
+    end
+end
+
+local upperLeg = dummyMotor6Ds[&quot;LeftHip&quot;]
+local knee = dummyMotor6Ds[&quot;LeftKnee&quot;]
+local foot = dummyMotor6Ds[&quot;LeftAnkle&quot;]
+</code></pre>
+<p>Here is how you can identify them using a plugin like RigEdit:</p>
+<p><img alt="Screenshot" src="../img/R15LeftHip.png" style="height:280px;width:500px" /></p>
+<p><img alt="Screenshot" src="../img/R15LeftKnee.png" style="height:280px;width:500px" /></p>
+<p><img alt="Screenshot" src="../img/R15LeftAnkle.png" style="height:280px;width:500px" /></p>
+<h3 id="2-create-the-ccdik-object">2. Create the CCDIK Object:</h3>
+<p>This step is done by creating a table of the Motor6D Joints starting from the base, and ending at the end of the joint, and inputting it into constructor of the CCDIK Object:</p>
+<pre><code class="language-lua">--Don't forget to require the module
+local ReplicatedStorage = game:GetService(&quot;ReplicatedStorage&quot;)
+local CCDIKController = require(ReplicatedStorage.Source.CCDIKController)
+
+local leftLeg = {upperLeg,knee,foot} --Order matters here
+local leftLegController = CCDIKController.new(leftLeg)
+</code></pre>
+<h3 id="3-let-it-rip">3. Let it rip</h3>
+<p>Now that the CCDIKController is setup, all that is left is to run the CCDIK functions to move the left.</p>
+<p>For continuous movement you can use the CCDIK IterateOnce function in a heartbeat connection like so:</p>
+<pre><code class="language-lua">local RunService = game:GetService(&quot;RunService&quot;)
+local leftTarget = workspace.newTarget--Part in workspace
+
+RunService.Heartbeat:Connect(function()
+    local goal = leftTarget.Position
+    leftLegController:CCDIKIterateOnce(goal)
+end)
+</code></pre>
+<p>Or you can use the IterateUntil if you intend to move it until it reaches the goal position.</p>
+<pre><code class="language-lua">local goal = leftTarget.Position
+leftLegController:CCDIKIterateUntil(goal)
+</code></pre>
+<h3 id="full-code-sample">Full Code Sample</h3>
+<details>
+<summary>R15 Tutorial Dummy full code</summary>
+<br>
+
+<pre><code class="language-lua">--[[
+    Testing with R15 Dummy
+]]
+local RunService = game:GetService(&quot;RunService&quot;)
+local ReplicatedStorage = game:GetService(&quot;ReplicatedStorage&quot;)
+local CCDIKController = require(ReplicatedStorage.Source.CCDIKController)
+
+local dummy = workspace.Dummy
+local leftTarget = workspace.newTarget
+
+local dummyMotor6Ds = {}
+
+local dummyDescendants = dummy:GetDescendants()
+for _,descendant in pairs (dummyDescendants) do
+    if descendant:IsA(&quot;Motor6D&quot;) then
+        dummyMotor6Ds[descendant.Name] = descendant
+    end
+end
+
+local upperLeg = dummyMotor6Ds[&quot;LeftHip&quot;]
+local knee = dummyMotor6Ds[&quot;LeftKnee&quot;]
+local foot = dummyMotor6Ds[&quot;LeftAnkle&quot;]
+
+local leftLeg = {upperLeg,knee,foot}
+
+local leftLegController = CCDIKController.new(leftLeg)
+
+RunService.Heartbeat:Connect(function()
+    local goal = leftTarget.Position
+    leftLegController:CCDIKIterateOnce(goal)
+end)
+</code></pre>
+
+</details>
+
+<h2 id="setting-up-the-constraints">Setting up the Constraints:</h2>
+<p>If you played around with the test place or tried the tutorial code previously you will find that the leg will move really strangely by itself. </p>
+<p>To fix this we will add constraints which is simple to do with given the built in function given that the model is SetupCorrectly</p>
+<p>Currently the module only supports Hinge and BallSocket Constraints however the setup is exactly the same as it uses the following function to setup the constraints from the Instances.</p>
+<pre><code class="language-lua">CCDIKController:GetConstraints()
+</code></pre>
+<h3 id="1-inserting-the-roblox-physics-constraint-instance">1. Inserting the Roblox Physics Constraint Instance</h3>
+<p>If you are familiar with the Roblox Constraint system the process should be exactly the same to add a constraint between
+ two parts please refer to the <a href="https://developer.roblox.com/en-us/articles/Constraints">Roblox article page</a> on the process.
+ In this case it'll be between the Part0 and Part 1 of the Motor6D in which we want to add constraints to which is the
+  LeftHip.</p>
+<p><img alt="Screenshot" src="../img/LeftHipMotor6D.png" style="height:320px;width:750px" /></p>
+<p>Luckily the R15 rig has the Motor6D joint represented as an attachment already setup named "LeftHipRigAttachment" in
+ the LowerTorso and LeftUpperLeg.
+Consequently, all we have to do is to connect them with a Roblox physics constraint and place this constraint instance
+ in the part0 of the model like so in the image below:</p>
+<p><img alt="Screenshot" src="../img/BallSocketSetup.png" style="height:350px;width:750px" /></p>
+<p>The attachment0 will be the attachment in the Part0 of the Motor6D, LowerTorso "LeftHipRigAttachment".<br/>
+The attachment1 will be the attachment in the Part1 of the Motor6D, LeftUpperLeg "LeftHipRigAttachment".</p>
+<p>If your model is a custom rig and doesn't have the RigAttachments setup just copy and paste the following code into the command bar:</p>
+<details>
+<summary>Custom RigAttachment setup code</summary>
+<br>
+
+<pre><code class="language-lua">local rigModel = workspace.Dummy -- insert path to your own model
+local function commandBarSetupRigAttachments(model)
+    local modelDescendants = model:GetDescendants()
+    for _,motor6D in pairs(modelDescendants) do
+        if motor6D:IsA(&quot;Motor6D&quot;) then
+            --In order to find the joint in world terms
+            local motor6DName = motor6D.Name
+            local AxisAttachment = Instance.new(&quot;Attachment&quot;)
+            AxisAttachment.CFrame = motor6D.C0
+            AxisAttachment.Name = motor6DName..&quot;RigAttachment&quot;
+            AxisAttachment.Parent = motor6D.Part0
+
+            local JointAttachment = Instance.new(&quot;Attachment&quot;)
+            JointAttachment.CFrame = motor6D.C1
+            JointAttachment.Name = motor6DName..&quot;RigAttachment&quot;
+            JointAttachment.Parent = motor6D.Part1
+        end
+    end
+end
+commandBarSetupRigAttachments(rigModel)
+</code></pre>
+
+</details>
+
+<h3 id="2-setup-the-code-and-run">2. Setup the code and run</h3>
+<p>In order to let the code detect the constraint instances all we have to do is to simply run the following function
+ after the CCDIKController is created!</p>
+<pre><code class="language-lua">local leftLeg = {upperLeg,knee,foot}
+local leftLegController = CCDIKController.new(leftLeg)
+leftLegController:GetConstraints()
+</code></pre>
+<p>And that's it!</p>
+<h3 id="3-note-the-special-cases">3. Note the special cases</h3>
+<p>The issue with the function is that if the Part0 of the model has multiple constraint instances then the
+ code will be confused which constraint the Motor6D uses. This will happen if a part is conencted with multiple Motor6D joints
+  like the lower torso is connected with the left leg and the right leg. </p>
+<p>To solve this after using :GetConstraints() function
+  we correct it by using the following function to specify the constraint name for the Motor6D in the Part0 to connect to:</p>
+<pre><code class="language-lua">--API:
+CCDIKController:GetConstraintsFromMotor(motor : Motor6D ,constraintName : string)
+
+--example:
+local leftLeg = {upperLeg,knee,foot}
+local leftLegController = CCDIKController.new(leftLeg)
+leftLegController:GetConstraints()--set up everything first
+
+--Then do the correction:
+--Finds the &quot;LeftBallSocketConstraint&quot; in the lowertorso part0 of the upperLeg Motor6D
+leftLegController:GetConstraintsFromMotor(upperLeg,&quot;LeftBallSocketConstraint&quot;)
+</code></pre>
+<h2 id="foot-placement-system">Foot placement System</h2>
+<p>To setup the foot placement system we will need to add three attachments placed into the model like so:</p>
+<p><img alt="Screenshot" src="../img/FootPlacementAttachments.png" style="height:350px;width:750px" /></p>
+<p>Then specify the names of the attachments in a table in proper order from 1,2,3 and add RaycastParams to setup the foot placement system.</p>
+<pre><code class="language-lua">local leftLegController = CCDIKController.new(fullLeg)
+leftLegController:GetConstraints()
+
+--Setting up the foot
+local footParams = RaycastParams.new()
+footParams.FilterDescendantsInstances = {mech}
+local attachmentNames = {&quot;A1&quot;,&quot;A2&quot;,&quot;A3&quot;} -- names the part1 of the foot Motor6D
+leftLegController:SetupFoot(attachmentNames,footParams)
+</code></pre>
+<p>Moreover the make the foot behave lifelike be sure the add constraints in the same way as previously mentions using the given functions.</p>
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
+        
+          <a href=".." class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+            </div>
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Home
+              </div>
+            </div>
+          </a>
+        
+        
+          <a href="../API/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                CCDIKClass API
+              </div>
+            </div>
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../assets/javascripts/vendor.93c04032.min.js"></script>
+      <script src="../assets/javascripts/bundle.83e5331e.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      
+      <script>
+        app = initialize({
+          base: "..",
+          features: [],
+          search: Object.assign({
+            worker: "../assets/javascripts/worker/search.8c7e0a7e.min.js"
+          }, typeof search !== "undefined" && search)
+        })
+      </script>
+      
+    
+  </body>
+</html>
