@@ -3,6 +3,8 @@ local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CCDIKController = require(ReplicatedStorage.Source.CCDIKController)
 
+local RunService = game:GetService("RunService")
+
 local mech = workspace.LowerBody
 local leftTarget = workspace.MechLTarget
 
@@ -46,11 +48,11 @@ local fullLeg = {upperLeg,knee,lowerLeg,foot}
 local leftLegController = CCDIKController.new(fullLeg)
 leftLegController:GetConstraints()
 
+--Setting up the foot
 local footParams = RaycastParams.new()
 footParams.FilterDescendantsInstances = {mech}
 local attachmentNames = {"A1","A2","A3"}
 leftLegController:SetupFoot(attachmentNames,footParams)
---leftLegController:GetConstraintsFromMotor(lowerLeg,"HingeConstraint")
 
 RunService.Heartbeat:Connect(function(step)
     local goal = leftTarget.Position

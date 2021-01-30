@@ -538,7 +538,7 @@ end
 	Usefull for creating HingeConstraints and BallSocketConstraints to visualize and orientate the attachments
 	Pretty necessary in fact to create the attachment axis and decide the upper angle or lower angle
 ]]
-function CCDIKController.CommandBarSetupJoints(model)
+function commandBarSetupJoints(model)
 	local modelDescendants = model:GetDescendants()
 	for _,motor6D in pairs(modelDescendants) do
 		if motor6D:IsA("Motor6D") then
@@ -556,6 +556,26 @@ function CCDIKController.CommandBarSetupJoints(model)
 		end
 	end
 end
+--Same as the above function but follow RigAttachment naming rule
+function commandBarSetupRigAttachments(model)
+	local modelDescendants = model:GetDescendants()
+	for _,motor6D in pairs(modelDescendants) do
+		if motor6D:IsA("Motor6D") then
+			--In order to find the joint in world terms
+			local motor6DName = motor6D.Name
+			local AxisAttachment = Instance.new("Attachment")
+			AxisAttachment.CFrame = motor6D.C0
+			AxisAttachment.Name = motor6DName.."RigAttachment"
+			AxisAttachment.Parent = motor6D.Part0
+	
+			local JointAttachment = Instance.new("Attachment")
+			JointAttachment.CFrame = motor6D.C1
+			JointAttachment.Name = motor6DName.."RigAttachment"
+			JointAttachment.Parent = motor6D.Part1
+		end
+	end
+end
+
 
 --[[
 	Utility function spawning a wedge part to visualize a vector in world space
