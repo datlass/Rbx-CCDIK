@@ -73,6 +73,11 @@ function CCDIKController.new(Motor6DTable,Constraints)
 
 	self.Maid = Maid.new()
 	self.Motor6DTable = Motor6DTable
+	--resets the rotation of the Motor6D automatically
+	for i,motor6D in pairs(Motor6DTable) do
+		motor6D.C0 = CFrame.new()+motor6D.C0.Position
+		motor6D.C1 = CFrame.new()+motor6D.C1.Position
+	end
 	self.Constraints = Constraints
 	self.JointInfo, self.JointAxisInfo = self:SetupJoints() -- Creates instances make sure to clean up via :Destroy()
 	self.EndEffector = Motor6DTable[#Motor6DTable].Part1:FindFirstChild("EndEffector")
@@ -96,6 +101,8 @@ function CCDIKController.new(Motor6DTable,Constraints)
 	self.RaycastLengthDown = 50
 	self._RayResultTable = {}
 
+	--additional feature
+	self.UseLastMotor = false
 	return self
 end
 
@@ -232,7 +239,8 @@ end
 ]]
 function CCDIKController:_CCDIKIterateStep(goalPosition,step)
 	local constraints = self.Constraints
-	for i= #self.Motor6DTable-1, 1, -1 do
+	local useLastMotor = self.UseLastMotor and 1 or 0 --Makes it so that it iterates the only one motor in the table
+	for i= #self.Motor6DTable-1+useLastMotor, 1, -1 do
 		local currentJoint = self.Motor6DTable[i]
 		self:RotateFromEffectorToGoal(currentJoint,goalPosition,step)
 		if constraints then
@@ -285,21 +293,24 @@ function CCDIKController:CCDIKIterateUntil(goalPosition,tolerance,maxBreakCount,
 	end
 end
 
-
 function CCDIKController.rotateJointFromTo(motor6DJoint,u,v,axis)
 	local rotationCFrame = getRotationBetween(u,v,axis)
-	rotationCFrame = motor6DJoint.Part0.CFrame:Inverse()*rotationCFrame*motor6DJoint.Part1.CFrame
+	local applyRotationToPart1 = rotationCFrame*motor6DJoint.Part1.CFrame
+	rotationCFrame = motor6DJoint.Part0.CFrame:Inverse()*applyRotationToPart1
 	rotationCFrame = rotationCFrame-rotationCFrame.Position
-	motor6DJoint.C0 = CFrame.new(motor6DJoint.C0.Position)*rotationCFrame
+	local goalC0CFrame = CFrame.new(motor6DJoint.C0.Position)*rotationCFrame
+
+	motor6DJoint.C0 = goalC0CFrame
 end
 
 --Controls the primary CCDIK Method but instead of going fully towards the goal it lerps slowly towards it instead
 function CCDIKController:rotateJointFromToWithLerp(motor6DJoint : Motor6D,u,v,axis,step)
-
 	local rotationCFrame = getRotationBetween(u,v,axis)
-	rotationCFrame = motor6DJoint.Part0.CFrame:Inverse()*rotationCFrame*motor6DJoint.Part1.CFrame
+	local applyRotationToPart1 = rotationCFrame*motor6DJoint.Part1.CFrame
+	rotationCFrame = motor6DJoint.Part0.CFrame:Inverse()*applyRotationToPart1
 	rotationCFrame = rotationCFrame-rotationCFrame.Position
 	local goalC0CFrame = CFrame.new(motor6DJoint.C0.Position)*rotationCFrame
+	
 	local lerpAlpha = self.LerpAlpha
 
 	local currentC0 = motor6DJoint.C0
@@ -325,7 +336,6 @@ function CCDIKController:RotateFromEffectorToGoal(motor6d : Motor6D,goalPosition
 	--local jointWorldPosition = (motor6d.Part0.CFrame*motor6d.C0).Position
 	--Faster to use attachments
 	local endEffectorPosition = self.EndEffector.WorldPosition
-
 	local directionToEffector = (endEffectorPosition - jointWorldPosition).Unit
 	local directionToGoal = (goalPosition - jointWorldPosition).Unit
 	if self.DebugMode then
@@ -582,7 +592,7 @@ end
 ]]
 function CCDIKController.VisualizeVector(position,direction,brickColor)
 	local wedgePart = Instance.new("WedgePart")
-	wedgePart.Size = Vector3.new(1,1,direction.Magnitude)
+	wedgePart.Size = Vector3.new(0.1,0.1,direction.Magnitude)
 	wedgePart.CFrame = CFLOOKAT(position,position+direction)*CFrame.new(0,0,-direction.Magnitude/2)
 	wedgePart.Anchored = true
 	wedgePart.CanCollide = false
