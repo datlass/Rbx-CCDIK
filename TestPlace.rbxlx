@@ -26202,25 +26202,6 @@ end
 --[[
 	Performs one iteration of the CCDIK step regardless of the end condition
 ]]
-function CCDIKController:_CCDIKIterateStep(goalPosition, step)
-	local constraints = self.Constraints
-	local useLastMotor = self.UseLastMotor and 1 or 0 --Makes it so that it iterates the only one motor in the table
-	for i = #self.Motor6DTable - 1 + useLastMotor, 1, -1 do
-		local currentJoint = self.Motor6DTable[i]
-		self:RotateFromEffectorToGoal(currentJoint, goalPosition, step)
-		if constraints then
-			local jointConstraintInfo = constraints[currentJoint]
-			if jointConstraintInfo then
-				if jointConstraintInfo.ConstraintType == "Hinge" then
-					self:RotateToHingeAxis(currentJoint, jointConstraintInfo)
-				end
-				if jointConstraintInfo.ConstraintType == "BallSocketConstraint" then
-					self:RotateToBallSocketConstraintAxis(currentJoint, jointConstraintInfo)
-				end
-			end
-		end
-	end
-end
 
 function CCDIKController:_CCDIKIterateStep(goalPosition, step)
 	local constraints = self.Constraints
@@ -26228,10 +26209,10 @@ function CCDIKController:_CCDIKIterateStep(goalPosition, step)
 	for i = #self.Motor6DTable - 1 + useLastMotor, 1, -1 do
 		local currentJoint = self.Motor6DTable[i]
 
-		currentJoint.C0 *= currentJoint.Transform -- apply animations to C0
-		self:RotateFromEffectorToGoal(currentJoint, goalPosition, step)
-
+		currentJoint.C0 *= currentJoint.Transform -- apply animations to C0 instead of . Transform
 		currentJoint.Transform = CFNEW()
+
+		self:RotateFromEffectorToGoal(currentJoint, goalPosition, step)
 
 		if constraints then
 			local jointConstraintInfo = constraints[currentJoint]
