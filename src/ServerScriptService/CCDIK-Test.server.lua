@@ -53,7 +53,7 @@ local footParams = RaycastParams.new()
 footParams.FilterDescendantsInstances = {mech}
 local attachmentNames = {"A1","A2","A3"}
 leftLegController:SetupFoot(attachmentNames,footParams)
-
+-- leftLegController:InitTweenDragDebug()
 RunService.Heartbeat:Connect(function(step)
     local goal = leftTarget.Position
     leftLegController:CCDIKIterateOnce(goal,nil,step)

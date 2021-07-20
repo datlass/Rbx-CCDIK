@@ -2,45 +2,48 @@
 -- Dthecoolest
 -- December 27, 2020
 
-local Debris = game:GetService("Debris")-- for debugging
+local Debris = game:GetService("Debris") -- for debugging
 local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
 
 local VectorUtil = require(script.VectorUtil)
 local Maid = require(script.Maid)
 
 --Axis angle version still here for testing purposes
-local function fromToRotation(u,v,axis)
-    local dot = u:Dot(v)
-    if (dot > 0.99999) then
-        -- situation 1
-        return CFrame.new()
-    elseif (dot < -0.99999) then
-        -- situation 2
-        return CFrame.fromAxisAngle(axis, math.pi)
-    end
+local function fromToRotation(u, v, axis)
+	local dot = u:Dot(v)
+	if dot > 0.99999 then
+		-- situation 1
+		return CFrame.new()
+	elseif dot < -0.99999 then
+		-- situation 2
+		return CFrame.fromAxisAngle(axis, math.pi)
+	end
 	-- situation 3
-		return CFrame.fromAxisAngle(u:Cross(v), math.acos(dot)*0.8)
+	return CFrame.fromAxisAngle(u:Cross(v), math.acos(dot) * 0.8)
 end
 
 --Quaternion rotation version from Egomoose
 --The cooler version (⌐□_□)
 local function getRotationBetween(u, v, axis)
-    local dot, uxv = u:Dot(v), u:Cross(v)
-    if (dot < -0.99999) then return CFrame.fromAxisAngle(axis, math.pi) end
-    return CFrame.new(0, 0, 0, uxv.x, uxv.y, uxv.z, 1 + dot)
+	local dot, uxv = u:Dot(v), u:Cross(v)
+	if dot < -0.99999 then
+		return CFrame.fromAxisAngle(axis, math.pi)
+	end
+	return CFrame.new(0, 0, 0, uxv.x, uxv.y, uxv.z, 1 + dot)
 end
 --[[
 	Amount is in radians
 	rotate vector around an axis
 ]]
-local function rotateVectorAround( v, amount, axis )
+local function rotateVectorAround(v, amount, axis)
 	return CFrame.fromAxisAngle(axis, amount):VectorToWorldSpace(v)
 end
 
 local CFNEW = CFrame.new
 local CFLOOKAT = CFrame.lookAt
 local ZEROVEC = Vector3.new()
-local DOWNVECTOR = Vector3.new(0,-1,0)
+local DOWNVECTOR = Vector3.new(0, -1, 0)
 
 --local motor6d = Instance.new("Motor6D")
 --Dictionary of how to setup the axis constraints
@@ -48,35 +51,38 @@ local hipJoint = Instance.new("Motor6D")
 local kneeJoint = Instance.new("Motor6D")
 local constraintsTemplate = {
 	[kneeJoint] = {
-		["ConstraintType"] = "Hinge";
-		["UpperAngle"] = 45; -- same as HingeConstraint [-180,180] degrees
-		["LowerAngle"] = -45;
-		["AxisAttachment"] = nil; --Automatically tries to find first child an attachment with the part0Motor6dName..AxisAttachment
-		["JointAttachment"] = nil;
-	};
+		["ConstraintType"] = "Hinge",
+		["UpperAngle"] = 45, -- same as HingeConstraint [-180,180] degrees
+		["LowerAngle"] = -45,
+		["AxisAttachment"] = nil, --Automatically tries to find first child an attachment with the part0Motor6dName..AxisAttachment
+		["JointAttachment"] = nil,
+	},
 	[hipJoint] = {
-		["ConstraintType"] = "BallSocketConstraint";
-		["UpperAngle"] = 45; -- same as BallSocketConstraint [-180,180] degrees
-		["TwistLimitsEnabled"] = false ; -- yep same as roblox constraints
-		["TwistUpperAngle"] = 45; 
-		["TwistLowerAngle"] = -45;
-		["AxisAttachment"] = nil; --Automatically tries to find first child during .new() setup but you can manually input it
-		["JointAttachment"] = nil;
-	};
+		["ConstraintType"] = "BallSocketConstraint",
+		["UpperAngle"] = 45, -- same as BallSocketConstraint [-180,180] degrees
+		["TwistLimitsEnabled"] = false, -- yep same as roblox constraints
+		["TwistUpperAngle"] = 45,
+		["TwistLowerAngle"] = -45,
+		["AxisAttachment"] = nil, --Automatically tries to find first child during .new() setup but you can manually input it
+		["JointAttachment"] = nil,
+	},
 }
 
 local CCDIKController = {}
 CCDIKController.__index = CCDIKController
 
-function CCDIKController.new(Motor6DTable,Constraints)
+function CCDIKController.new(Motor6DTable, Constraints)
 	local self = setmetatable({}, CCDIKController)
 
 	self.Maid = Maid.new()
 	self.Motor6DTable = Motor6DTable
 	--resets the rotation of the Motor6D automatically
-	for i,motor6D in pairs(Motor6DTable) do
-		motor6D.C0 = CFrame.new()+motor6D.C0.Position
-		motor6D.C1 = CFrame.new()+motor6D.C1.Position
+	--Prevents C0 orientated models like R6 from spinning wildly
+	for i, motor6D in pairs(Motor6DTable) do
+		local newC1Orientation = motor6D.C1 * motor6D.C0:Inverse()
+		newC1Orientation -= newC1Orientation.Position
+		motor6D.C0 = CFrame.new() + motor6D.C0.Position
+		motor6D.C1 = newC1Orientation + motor6D.C1.Position
 	end
 	self.Constraints = Constraints
 	self.JointInfo, self.JointAxisInfo = self:SetupJoints() -- Creates instances make sure to clean up via :Destroy()
@@ -110,9 +116,9 @@ end
 	Sets up the attachments to find the Motor6D joints position in world space, also tries to find the constraint axis
 ]]
 function CCDIKController:SetupJoints()
-	local joints ={}
+	local joints = {}
 	local jointAxisInfo = {}
-	for _,motor in pairs(self.Motor6DTable) do
+	for _, motor in pairs(self.Motor6DTable) do
 		--In order to find the joint in world terms and index it fast, only thing that needs to be destroyed
 		local attachment = Instance.new("Attachment")
 		attachment.CFrame = motor.C0
@@ -125,21 +131,24 @@ function CCDIKController:SetupJoints()
 			if motorConstraints then
 				--If it doesn't already have an axis attachment, find one,
 				if not motorConstraints.AxisAttachment then
-					local AxisAttachment = motor.Part0:FindFirstChild(motor.Part0.Name.."AxisAttachment")
+					local AxisAttachment = motor.Part0:FindFirstChild(motor.Part0.Name .. "AxisAttachment")
 					motorConstraints["AxisAttachment"] = AxisAttachment
 				elseif typeof(motorConstraints.AxisAttachment) == "string" then
-					local AxisAttachment = motor.Part0:FindFirstChild(motorConstraints.AxisAttachment.."AxisAttachment")
+					local AxisAttachment = motor.Part0:FindFirstChild(
+						motorConstraints.AxisAttachment .. "AxisAttachment"
+					)
 					motorConstraints["AxisAttachment"] = AxisAttachment
 				end
 				--same here for joint attachment
 				if not motorConstraints.JointAttachment then
-					local JointAttachment = motor.Part1:FindFirstChild(motor.Part0.Name.."JointAttachment")
+					local JointAttachment = motor.Part1:FindFirstChild(motor.Part0.Name .. "JointAttachment")
 					motorConstraints["JointAttachment"] = JointAttachment
 				elseif typeof(motorConstraints.JointAttachment) == "string" then
-					local JointAttachment = motor.Part1:FindFirstChild(motorConstraints.JointAttachment.."JointAttachment")
+					local JointAttachment = motor.Part1:FindFirstChild(
+						motorConstraints.JointAttachment .. "JointAttachment"
+					)
 					motorConstraints["JointAttachment"] = JointAttachment
 				end
-
 			end
 		end
 	end
@@ -153,31 +162,30 @@ end
 ]]
 function CCDIKController:GetConstraints()
 	if not self.Constraints then -- construct the constraint table if none
-		self.Constraints ={}
+		self.Constraints = {}
 	end
-	for _,motor in pairs(self.Motor6DTable) do
-		local motorPart0 : Part
+	for _, motor in pairs(self.Motor6DTable) do
+		local motorPart0: Part
 		motorPart0 = motor.Part0
 		local hingeConstraint = motorPart0:FindFirstChildWhichIsA("HingeConstraint")
 		local ballSocketConstraint = motorPart0:FindFirstChildWhichIsA("BallSocketConstraint")
 		if hingeConstraint then
 			self.Constraints[motor] = {
-				["ConstraintType"] = "Hinge";
-				["UpperAngle"] = hingeConstraint.UpperAngle; -- same as HingeConstraint [-180,180] degrees
-				["LowerAngle"] = hingeConstraint.LowerAngle;	
-				["AxisAttachment"] = hingeConstraint.Attachment0;
-				["JointAttachment"] = hingeConstraint.Attachment1;
-		
+				["ConstraintType"] = "Hinge",
+				["UpperAngle"] = hingeConstraint.UpperAngle, -- same as HingeConstraint [-180,180] degrees
+				["LowerAngle"] = hingeConstraint.LowerAngle,
+				["AxisAttachment"] = hingeConstraint.Attachment0,
+				["JointAttachment"] = hingeConstraint.Attachment1,
 			}
 		elseif ballSocketConstraint then
 			self.Constraints[motor] = {
-				["ConstraintType"] = "BallSocketConstraint";
-				["UpperAngle"] = ballSocketConstraint.UpperAngle; -- same as BallSocketConstraint [-180,180] degrees
-				["TwistLimitsEnabled"] = ballSocketConstraint.TwistLimitsEnabled ; -- still have no idea how to do
-				["TwistUpperAngle"] = ballSocketConstraint.TwistUpperAngle; -- so yeah no twist limits for now
-				["TwistLowerAngle"] = ballSocketConstraint.TwistLowerAngle;
-				["AxisAttachment"] = ballSocketConstraint.Attachment0; --Automatically tries to find first child during .new() setup but you can manually input it
-				["JointAttachment"] = ballSocketConstraint.Attachment1;	
+				["ConstraintType"] = "BallSocketConstraint",
+				["UpperAngle"] = ballSocketConstraint.UpperAngle, -- same as BallSocketConstraint [-180,180] degrees
+				["TwistLimitsEnabled"] = ballSocketConstraint.TwistLimitsEnabled, -- still have no idea how to do
+				["TwistUpperAngle"] = ballSocketConstraint.TwistUpperAngle, -- so yeah no twist limits for now
+				["TwistLowerAngle"] = ballSocketConstraint.TwistLowerAngle,
+				["AxisAttachment"] = ballSocketConstraint.Attachment0, --Automatically tries to find first child during .new() setup but you can manually input it
+				["JointAttachment"] = ballSocketConstraint.Attachment1,
 			}
 		end
 	end
@@ -187,29 +195,29 @@ end
 	Same as GetConstraints except uses :FindFirstChild() to find the roblox constraint and sets settings accordingly
 
 ]]
-function CCDIKController:GetConstraintsFromMotor(motor : Motor6D ,constraintName : string)
+function CCDIKController:GetConstraintsFromMotor(motor: Motor6D, constraintName: string)
 	if not self.Constraints then -- construct the constraint table if none
-		self.Constraints ={}
+		self.Constraints = {}
 	end
 	local constraint = motor.Part0:FindFirstChild(constraintName)
 	if constraint:IsA("HingeConstraint") then
 		self.Constraints[motor] = {
-			["ConstraintType"] = "Hinge";
-			["UpperAngle"] = constraint.UpperAngle; -- same as HingeConstraint [-180,180] degrees
-			["LowerAngle"] = constraint.LowerAngle;	
-			["AxisAttachment"] = constraint.Attachment0;
-			["JointAttachment"] = constraint.Attachment1;
+			["ConstraintType"] = "Hinge",
+			["UpperAngle"] = constraint.UpperAngle, -- same as HingeConstraint [-180,180] degrees
+			["LowerAngle"] = constraint.LowerAngle,
+			["AxisAttachment"] = constraint.Attachment0,
+			["JointAttachment"] = constraint.Attachment1,
 		}
 	elseif constraint:IsA("BallSocketConstraint") then
 		self.Constraints[motor] = {
-			["ConstraintType"] = "BallSocketConstraint";
-			["UpperAngle"] = constraint.UpperAngle; -- same as BallSocketConstraint [-180,180] degrees
-			["TwistLimitsEnabled"] = constraint.TwistLimitsEnabled ; -- still have no idea how to do
-			["TwistUpperAngle"] = constraint.TwistUpperAngle; -- so yeah no twist limits for now
-			["TwistLowerAngle"] = constraint.TwistLowerAngle;
-			["AxisAttachment"] = constraint.Attachment0; --Automatically tries to find first child during .new() setup but you can manually input it
-			["JointAttachment"] = constraint.Attachment1;	
-	}
+			["ConstraintType"] = "BallSocketConstraint",
+			["UpperAngle"] = constraint.UpperAngle, -- same as BallSocketConstraint [-180,180] degrees
+			["TwistLimitsEnabled"] = constraint.TwistLimitsEnabled, -- still have no idea how to do
+			["TwistUpperAngle"] = constraint.TwistUpperAngle, -- so yeah no twist limits for now
+			["TwistLowerAngle"] = constraint.TwistLowerAngle,
+			["AxisAttachment"] = constraint.Attachment0, --Automatically tries to find first child during .new() setup but you can manually input it
+			["JointAttachment"] = constraint.Attachment1,
+		}
 	end
 end
 
@@ -220,16 +228,19 @@ function CCDIKController:_CCDIKIterateFoot(step)
 	local constraints = self.Constraints
 	local motor6DTable = self.Motor6DTable
 	local footJoint = motor6DTable[#motor6DTable]
-	self:OrientFootMotorToFloor(footJoint,step)
+
+	footJoint.C0 *= footJoint.Transform
+	self:OrientFootMotorToFloor(footJoint, step)
+	footJoint.Transform = CFNEW()
 
 	if constraints then
 		local jointConstraintInfo = constraints[footJoint]
 		if jointConstraintInfo then
 			if jointConstraintInfo.ConstraintType == "Hinge" then
-				self:RotateToHingeAxis(footJoint,jointConstraintInfo)
+				self:RotateToHingeAxis(footJoint, jointConstraintInfo)
 			end
 			if jointConstraintInfo.ConstraintType == "BallSocketConstraint" then
-				self:RotateToBallSocketConstraintAxis(footJoint,jointConstraintInfo)
+				self:RotateToBallSocketConstraintAxis(footJoint, jointConstraintInfo)
 			end
 		end
 	end
@@ -237,20 +248,45 @@ end
 --[[
 	Performs one iteration of the CCDIK step regardless of the end condition
 ]]
-function CCDIKController:_CCDIKIterateStep(goalPosition,step)
+function CCDIKController:_CCDIKIterateStep(goalPosition, step)
 	local constraints = self.Constraints
 	local useLastMotor = self.UseLastMotor and 1 or 0 --Makes it so that it iterates the only one motor in the table
-	for i= #self.Motor6DTable-1+useLastMotor, 1, -1 do
+	for i = #self.Motor6DTable - 1 + useLastMotor, 1, -1 do
 		local currentJoint = self.Motor6DTable[i]
-		self:RotateFromEffectorToGoal(currentJoint,goalPosition,step)
+		self:RotateFromEffectorToGoal(currentJoint, goalPosition, step)
 		if constraints then
 			local jointConstraintInfo = constraints[currentJoint]
 			if jointConstraintInfo then
 				if jointConstraintInfo.ConstraintType == "Hinge" then
-					self:RotateToHingeAxis(currentJoint,jointConstraintInfo)
+					self:RotateToHingeAxis(currentJoint, jointConstraintInfo)
 				end
 				if jointConstraintInfo.ConstraintType == "BallSocketConstraint" then
-					self:RotateToBallSocketConstraintAxis(currentJoint,jointConstraintInfo)
+					self:RotateToBallSocketConstraintAxis(currentJoint, jointConstraintInfo)
+				end
+			end
+		end
+	end
+end
+
+function CCDIKController:_CCDIKIterateStep(goalPosition, step)
+	local constraints = self.Constraints
+	local useLastMotor = self.UseLastMotor and 1 or 0 --Makes it so that it iterates the only one motor in the table
+	for i = #self.Motor6DTable - 1 + useLastMotor, 1, -1 do
+		local currentJoint = self.Motor6DTable[i]
+
+		currentJoint.C0 *= currentJoint.Transform -- apply animations to C0
+		self:RotateFromEffectorToGoal(currentJoint, goalPosition, step)
+
+		currentJoint.Transform = CFNEW()
+
+		if constraints then
+			local jointConstraintInfo = constraints[currentJoint]
+			if jointConstraintInfo then
+				if jointConstraintInfo.ConstraintType == "Hinge" then
+					self:RotateToHingeAxis(currentJoint, jointConstraintInfo)
+				end
+				if jointConstraintInfo.ConstraintType == "BallSocketConstraint" then
+					self:RotateToBallSocketConstraintAxis(currentJoint, jointConstraintInfo)
 				end
 			end
 		end
@@ -259,14 +295,14 @@ end
 --[[------------------------------
 	Iterates only if goalPosition is not yet reached
 ]]
-function CCDIKController:CCDIKIterateOnce(goalPosition,tolerance,step)
+function CCDIKController:CCDIKIterateOnce(goalPosition, tolerance, step)
 	local endEffectorPosition = self.EndEffector.WorldPosition
 
-	local distanceToGoal = endEffectorPosition-goalPosition
+	local distanceToGoal = endEffectorPosition - goalPosition
 	local tolerance = tolerance or 1
-	
+
 	if distanceToGoal.Magnitude > tolerance then
-		self:_CCDIKIterateStep(goalPosition,step)
+		self:_CCDIKIterateStep(goalPosition, step)
 	end
 
 	--Always attempt to orientate foot to floor
@@ -275,60 +311,87 @@ function CCDIKController:CCDIKIterateOnce(goalPosition,tolerance,step)
 	end
 end
 
+function CCDIKController:CCDIKIterateOnceDebug(goalPosition, tolerance, step)
+	-- local endEffectorPosition = self.EndEffector.WorldPosition
+
+	-- local distanceToGoal = endEffectorPosition-goalPosition
+	-- local tolerance = tolerance or 0
+
+	self:_CCDIKIterateStep(goalPosition, step)
+
+	--Always attempt to orientate foot to floor
+	--not for the debug mode
+	-- if self.FootOrientationSystem then
+	-- 	self:_CCDIKIterateFoot(step)
+	-- end
+end
+
 -- Same as Iterate once but in a while loop
-function CCDIKController:CCDIKIterateUntil(goalPosition,tolerance,maxBreakCount,step)
+function CCDIKController:CCDIKIterateUntil(goalPosition, tolerance, maxBreakCount, step)
 	local maxBreakCount = maxBreakCount or 10
 	local currentIterationCount = 0
 	local endEffectorPosition = self.EndEffector.WorldPosition
 
-	local distanceToGoal = endEffectorPosition-goalPosition
+	local distanceToGoal = endEffectorPosition - goalPosition
 	local tolerance = tolerance or 1
-	
+
 	while distanceToGoal.Magnitude > tolerance and maxBreakCount >= currentIterationCount do
 		currentIterationCount += 1
-		self:_CCDIKIterateStep(goalPosition,step)
+		self:_CCDIKIterateStep(goalPosition, step)
 		if self.FootOrientationSystem then
 			self:_CCDIKIterateFoot(step)
-		end	
+		end
 	end
 end
 
-function CCDIKController.rotateJointFromTo(motor6DJoint,u,v,axis)
-	local rotationCFrame = getRotationBetween(u,v,axis)
-	local applyRotationToPart1 = rotationCFrame*motor6DJoint.Part1.CFrame
-	rotationCFrame = motor6DJoint.Part0.CFrame:Inverse()*applyRotationToPart1
-	rotationCFrame = rotationCFrame-rotationCFrame.Position
-	local goalC0CFrame = CFrame.new(motor6DJoint.C0.Position)*rotationCFrame
+function CCDIKController.rotateJointFromTo(motor6DJoint, u, v, axis)
+	local rotationCFrame = getRotationBetween(u, v, axis)
+	local applyRotationToPart1 = rotationCFrame * motor6DJoint.Part1.CFrame
+	rotationCFrame = motor6DJoint.Part0.CFrame:Inverse() * applyRotationToPart1
+	rotationCFrame = rotationCFrame - rotationCFrame.Position
+	local goalC0CFrame = CFrame.new(motor6DJoint.C0.Position) * rotationCFrame
 
 	motor6DJoint.C0 = goalC0CFrame
 end
 
+local tweenInfo = TweenInfo.new(0.75)
+function CCDIKController.rotateJointFromToTween(motor6DJoint, u, v, axis)
+	local rotationCFrame = getRotationBetween(u, v, axis)
+	local applyRotationToPart1 = rotationCFrame * motor6DJoint.Part1.CFrame
+	rotationCFrame = motor6DJoint.Part0.CFrame:Inverse() * applyRotationToPart1
+	rotationCFrame = rotationCFrame - rotationCFrame.Position
+	local goalC0CFrame = CFrame.new(motor6DJoint.C0.Position) * rotationCFrame
+
+	local tween = TweenService:Create(motor6DJoint, tweenInfo, { C0 = goalC0CFrame })
+	tween:Play()
+	tween.Completed:Wait()
+end
+
 --Controls the primary CCDIK Method but instead of going fully towards the goal it lerps slowly towards it instead
-function CCDIKController:rotateJointFromToWithLerp(motor6DJoint : Motor6D,u,v,axis,step)
-	local rotationCFrame = getRotationBetween(u,v,axis)
-	local applyRotationToPart1 = rotationCFrame*motor6DJoint.Part1.CFrame
-	rotationCFrame = motor6DJoint.Part0.CFrame:Inverse()*applyRotationToPart1
-	rotationCFrame = rotationCFrame-rotationCFrame.Position
-	local goalC0CFrame = CFrame.new(motor6DJoint.C0.Position)*rotationCFrame
-	
+function CCDIKController:rotateJointFromToWithLerp(motor6DJoint: Motor6D, u, v, axis, step)
+	local rotationCFrame = getRotationBetween(u, v, axis)
+	local applyRotationToPart1 = rotationCFrame * motor6DJoint.Part1.CFrame
+	rotationCFrame = motor6DJoint.Part0.CFrame:Inverse() * applyRotationToPart1
+	rotationCFrame = rotationCFrame - rotationCFrame.Position
+	local goalC0CFrame = CFrame.new(motor6DJoint.C0.Position) * rotationCFrame
+
 	local lerpAlpha = self.LerpAlpha
 
 	local currentC0 = motor6DJoint.C0
 
 	if step and self.ConstantLerpSpeed then
-		local angularDistance = VectorUtil.AngleBetween(currentC0.LookVector,goalC0CFrame.LookVector)
-		local estimatedTime = self.AngularSpeed/angularDistance
-		lerpAlpha = math.min(step*estimatedTime,1)
+		local angularDistance = VectorUtil.AngleBetween(currentC0.LookVector, goalC0CFrame.LookVector)
+		local estimatedTime = self.AngularSpeed / angularDistance
+		lerpAlpha = math.min(step * estimatedTime, 1)
 	end
 
-	motor6DJoint.C0 = currentC0:Lerp(goalC0CFrame,lerpAlpha)
+	motor6DJoint.C0 = currentC0:Lerp(goalC0CFrame, lerpAlpha)
 end
 
 --[[------------------------------
 	Primary joint movement method which performs the CCDIK algorithm of rotating a joint from end effector to goal
 ]]
-function CCDIKController:RotateFromEffectorToGoal(motor6d : Motor6D,goalPosition,step)
-
+function CCDIKController:RotateFromEffectorToGoal(motor6d: Motor6D, goalPosition, step)
 	local motor6dPart0 = motor6d.Part0
 	local part0CF = motor6dPart0.CFrame
 
@@ -339,13 +402,16 @@ function CCDIKController:RotateFromEffectorToGoal(motor6d : Motor6D,goalPosition
 	local directionToEffector = (endEffectorPosition - jointWorldPosition).Unit
 	local directionToGoal = (goalPosition - jointWorldPosition).Unit
 	if self.DebugMode then
-		self.VisualizeVector(jointWorldPosition,endEffectorPosition - jointWorldPosition,BrickColor.Blue())
-		self.VisualizeVector(jointWorldPosition,goalPosition - jointWorldPosition,BrickColor.Red())
+		self.VisualizeVector(jointWorldPosition, endEffectorPosition - jointWorldPosition, BrickColor.Blue())
+		self.VisualizeVector(jointWorldPosition, goalPosition - jointWorldPosition, BrickColor.Red())
+		self.rotateJointFromToTween(motor6d, directionToEffector, directionToGoal, part0CF.RightVector)
+		return --skip the rest since debug mode lol
 	end
+
 	if self.LerpMode ~= true then
-		self.rotateJointFromTo(motor6d,directionToEffector,directionToGoal,part0CF.RightVector)
+		self.rotateJointFromTo(motor6d, directionToEffector, directionToGoal, part0CF.RightVector)
 	else
-		self:rotateJointFromToWithLerp(motor6d,directionToEffector,directionToGoal,part0CF.RightVector,step)
+		self:rotateJointFromToWithLerp(motor6d, directionToEffector, directionToGoal, part0CF.RightVector, step)
 	end
 end
 
@@ -361,17 +427,17 @@ Dictionary to setup the constraint information:
 		["JointAttachment"] = nil;
 	};
 ]]
-function CCDIKController:RotateToHingeAxis(motor6d : Motor6D,jointConstraintInfo)
+function CCDIKController:RotateToHingeAxis(motor6d: Motor6D, jointConstraintInfo)
 	local motor6dPart0 = motor6d.Part0
 	local part0CF = motor6dPart0.CFrame
 	local axisAttachment = jointConstraintInfo.AxisAttachment
 	local jointAttachment = jointConstraintInfo.JointAttachment
 
 	local hingeAxis = axisAttachment.WorldAxis
-	local currentHingeAxis = jointAttachment.WorldAxis 
+	local currentHingeAxis = jointAttachment.WorldAxis
 
 	--Enforce hinge axis, has to be instantaneous
-	self.rotateJointFromTo(motor6d,currentHingeAxis,hingeAxis,part0CF.RightVector)
+	self.rotateJointFromTo(motor6d, currentHingeAxis, hingeAxis, part0CF.RightVector)
 
 	--Then enforce hinge constraints
 	local axisCFrame = axisAttachment.WorldCFrame
@@ -380,19 +446,18 @@ function CCDIKController:RotateToHingeAxis(motor6d : Motor6D,jointConstraintInfo
 	local upperAngle = jointConstraintInfo.UpperAngle or 180
 	local lowerAngle = jointConstraintInfo.LowerAngle or -180
 
-	local localCFrame : CFrame
+	local localCFrame: CFrame
 	localCFrame = axisCFrame:ToObjectSpace(jointCFrame)
-	local x,_,_ = localCFrame:ToEulerAnglesXYZ()
+	local x, _, _ = localCFrame:ToEulerAnglesXYZ()
 	--print(math.round(math.deg(x)),math.round(math.deg(y)),math.round(math.deg(z))) -- yep x is the rotation
-	local constrainedX = math.clamp(math.deg(x),lowerAngle,upperAngle)
+	local constrainedX = math.clamp(math.deg(x), lowerAngle, upperAngle)
 	constrainedX = math.rad(constrainedX)
-	local constrainedJointCFrame = CFrame.fromEulerAnglesXYZ(constrainedX,0,0)
+	local constrainedJointCFrame = CFrame.fromEulerAnglesXYZ(constrainedX, 0, 0)
 	local newWorldJointCFrame = axisCFrame:ToWorldSpace(constrainedJointCFrame)
-	local newPart1CFrame = newWorldJointCFrame*jointAttachment.CFrame:Inverse() -- Uhh only works with attachments
-	local goalCFRotation = motor6d.Part0.CFrame:Inverse()*newPart1CFrame
-	goalCFRotation = goalCFRotation-goalCFRotation.Position
-	motor6d.C0 = CFrame.new(motor6d.C0.Position)*goalCFRotation
-
+	local newPart1CFrame = newWorldJointCFrame * jointAttachment.CFrame:Inverse() -- Uhh only works with attachments
+	local goalCFRotation = motor6d.Part0.CFrame:Inverse() * newPart1CFrame
+	goalCFRotation = goalCFRotation - goalCFRotation.Position
+	motor6d.C0 = CFrame.new(motor6d.C0.Position) * goalCFRotation
 end
 
 --[[---------------------------------------------------------
@@ -409,46 +474,45 @@ Dictionary to setup the constraint information:
 		["JointAttachment"] = nil;
 	};
 ]]
-function CCDIKController:RotateToBallSocketConstraintAxis(motor6d,jointConstraintInfo)
+function CCDIKController:RotateToBallSocketConstraintAxis(motor6d, jointConstraintInfo)
 	local motor6dPart0 = motor6d.Part0
 	local part0CF = motor6dPart0.CFrame
 	local axisAttachment = jointConstraintInfo.AxisAttachment
 	local jointAttachment = jointConstraintInfo.JointAttachment
 
 	local centerAxis = axisAttachment.WorldAxis
-	local currentCenterAxis = jointAttachment.WorldAxis 
-	local angleDifference = VectorUtil.AngleBetween(currentCenterAxis,centerAxis)
+	local currentCenterAxis = jointAttachment.WorldAxis
+	local angleDifference = VectorUtil.AngleBetween(currentCenterAxis, centerAxis)
 
 	local constraintUpperAngle = math.rad(jointConstraintInfo.UpperAngle) or math.rad(45)
 
 	--out of bounds constrain it to world axis of the socket
 	if angleDifference > constraintUpperAngle then
 		local axis = currentCenterAxis:Cross(centerAxis)
-		local angleDifference = angleDifference-constraintUpperAngle
-		local newCenterAxisWithinBounds = rotateVectorAround( currentCenterAxis, angleDifference, axis )
-		self.rotateJointFromTo(motor6d,currentCenterAxis,newCenterAxisWithinBounds,part0CF.RightVector)
+		local angleDifference = angleDifference - constraintUpperAngle
+		local newCenterAxisWithinBounds = rotateVectorAround(currentCenterAxis, angleDifference, axis)
+		self.rotateJointFromTo(motor6d, currentCenterAxis, newCenterAxisWithinBounds, part0CF.RightVector)
 	end
 
 	--Now enforce twist limits
 	if jointConstraintInfo.TwistLimitsEnabled then
-
 		local axisCFrame = axisAttachment.WorldCFrame
-		local currentJointCFrame = jointAttachment.WorldCFrame 
-	
+		local currentJointCFrame = jointAttachment.WorldCFrame
+
 		local twistSwingAxis = axisAttachment.WorldAxis
 		local function twistSwing(cf, direction)
 			local axis, theta = cf:ToAxisAngle()
-			local w, v = math.cos(theta/2),  math.sin(theta/2)*axis
-			local proj = v:Dot(direction)*direction
+			local w, v = math.cos(theta / 2), math.sin(theta / 2) * axis
+			local proj = v:Dot(direction) * direction
 			local twist = CFrame.new(cf.x, cf.y, cf.z, proj.x, proj.y, proj.z, w)
 			local swing = twist:Inverse() * cf
 			return swing, twist
 		end
 		local jointRelativeCFrame = axisCFrame:ToObjectSpace(currentJointCFrame)
-		local swing,twist = twistSwing(jointRelativeCFrame,twistSwingAxis)
+		local swing, twist = twistSwing(jointRelativeCFrame, twistSwingAxis)
 		local axis, angle = twist:ToAxisAngle()
 		local axisSign = math.sign(axis:Dot(twistSwingAxis))
-		axis, angle = axisSign*axis,axisSign*angle--make the signs relative to twist axis
+		axis, angle = axisSign * axis, axisSign * angle --make the signs relative to twist axis
 		angle = math.deg(angle)
 
 		local upperAngle = jointConstraintInfo.TwistUpperAngle
@@ -457,62 +521,63 @@ function CCDIKController:RotateToBallSocketConstraintAxis(motor6d,jointConstrain
 		if angle > upperAngle then
 			angle = upperAngle
 		elseif angle < lowerAngle then
-			angle = lowerAngle	
+			angle = lowerAngle
 		else
 			notConstrained = true
 		end
 
 		if not notConstrained then
 			angle = math.rad(angle)
-			local newTwist = CFrame.fromAxisAngle(axis,angle)
-			local newConstraintedRelativeCFrame = newTwist*swing
-			local newJointWorldCFrame = axisCFrame*newConstraintedRelativeCFrame
-			local part1CF = newJointWorldCFrame*jointAttachment.CFrame:Inverse()
-			local goalCF = motor6d.Part0.CFrame:Inverse()*part1CF
-			motor6d.C0 = CFNEW(motor6d.C0.Position)*(goalCF-goalCF.Position)
+			local newTwist = CFrame.fromAxisAngle(axis, angle)
+			local newConstraintedRelativeCFrame = newTwist * swing
+			local newJointWorldCFrame = axisCFrame * newConstraintedRelativeCFrame
+			local part1CF = newJointWorldCFrame * jointAttachment.CFrame:Inverse()
+			local goalCF = motor6d.Part0.CFrame:Inverse() * part1CF
+			motor6d.C0 = CFNEW(motor6d.C0.Position) * (goalCF - goalCF.Position)
 		end
 	end
-
-
 end
 
 --[[
 	Finds the attachments in the part1 foot and the raycasting params the system uses
 ]]
-function CCDIKController:SetupFoot(attachmentNameTable : table,raycastParams)
+function CCDIKController:SetupFoot(attachmentNameTable: table, raycastParams)
 	local motor6DTable = self.Motor6DTable
 	local footJoint = motor6DTable[#motor6DTable]
 	local footPart = footJoint.Part1
 	local footAttachmentTable = {}
-	for i,attachmentName in pairs (attachmentNameTable) do
+	for i, attachmentName in pairs(attachmentNameTable) do
 		footAttachmentTable[i] = footPart:FindFirstChild(attachmentName)
 	end
 	self.FootAttachmentTable = footAttachmentTable
 	self.FootRaycastParams = raycastParams
-	self.FootOrientationSystem =true
+	self.FootOrientationSystem = true
 end
 
-function CCDIKController:OrientFootMotorToFloor(motor6d : Motor6D,step)
+function CCDIKController:OrientFootMotorToFloor(motor6d: Motor6D, step)
 	local attachmentTable = self.FootAttachmentTable
 	local lengthToFloor = self.RaycastLengthDown
 	local rayResultTable = self._RayResultTable
 
 	local raycastParams = self.FootRaycastParams
-	for i=1,3 do
+	for i = 1, 3 do
 		local attachment = attachmentTable[i]
 		local rayOrigin = attachment.WorldPosition
-		local rayDown = -attachment.WorldCFrame.UpVector*lengthToFloor
-		rayResultTable[i] = workspace:Raycast(rayOrigin,rayDown,raycastParams)
+		local rayDown = -attachment.WorldCFrame.UpVector * lengthToFloor
+		rayResultTable[i] = workspace:Raycast(rayOrigin, rayDown, raycastParams)
 	end
 	local raycastNilCheck = (rayResultTable[1] and rayResultTable[2] and rayResultTable[3]) == nil
 
 	local footCFrame = self.EndEffector.WorldCFrame
 
-	local newUpVector = raycastNilCheck and footCFrame.UpVector or (rayResultTable[2].Position-rayResultTable[1].Position):Cross(rayResultTable[3].Position-rayResultTable[1].Position).Unit
-	
+	local newUpVector = raycastNilCheck and footCFrame.UpVector
+		or (rayResultTable[2].Position - rayResultTable[1].Position):Cross(
+			rayResultTable[3].Position - rayResultTable[1].Position
+		).Unit
+
 	local currentFootUpVector = footCFrame.UpVector
 
-	self:rotateJointFromToWithLerp(motor6d,currentFootUpVector,newUpVector,footCFrame.UpVector,step)
+	self:rotateJointFromToWithLerp(motor6d, currentFootUpVector, newUpVector, footCFrame.UpVector, step)
 
 	--Then enforce constraints
 	local constraints = self.Constraints
@@ -520,10 +585,10 @@ function CCDIKController:OrientFootMotorToFloor(motor6d : Motor6D,step)
 		local jointConstraintInfo = constraints[motor6d]
 		if jointConstraintInfo then
 			if jointConstraintInfo.ConstraintType == "Hinge" then
-				self:RotateToHingeAxis(motor6d,jointConstraintInfo)
+				self:RotateToHingeAxis(motor6d, jointConstraintInfo)
 			end
 			if jointConstraintInfo.ConstraintType == "BallSocketConstraint" then
-				self:RotateToBallSocketConstraintAxis(motor6d,jointConstraintInfo)
+				self:RotateToBallSocketConstraintAxis(motor6d, jointConstraintInfo)
 			end
 		end
 	end
@@ -533,13 +598,35 @@ function CCDIKController:InitDragDebug()
 	local lastPart1 = self.Motor6DTable[#self.Motor6DTable].Part1
 
 	local dragMe = Instance.new("Part")
-	dragMe.Size = Vector3.new(1,1,1)
+	dragMe.CanCollide = false
+	dragMe.Anchored = true
+	dragMe.Size = Vector3.new(1, 1, 1)
 	dragMe.BrickColor = BrickColor.random()
 	dragMe.Position = lastPart1.Position
-	dragMe.Name = "DragMe!: "..lastPart1.Name
-	dragMe.Parent=workspace
+	dragMe.Name = "DragMe!: " .. lastPart1.Name
+	dragMe.Parent = workspace
 	RunService.Heartbeat:Connect(function()
-		self:CCDIKIterateOnce(dragMe.Position,0.1)
+		self:CCDIKIterateOnce(dragMe.Position, 0.1)
+	end)
+end
+
+function CCDIKController:InitTweenDragDebug()
+	local lastPart1 = self.Motor6DTable[#self.Motor6DTable].Part1
+	self.DebugMode = true
+
+	local dragMe = Instance.new("Part")
+	dragMe.CanCollide = false
+	dragMe.Anchored = true
+	dragMe.Size = Vector3.new(1, 1, 1)
+	dragMe.BrickColor = BrickColor.random()
+	dragMe.Position = lastPart1.Position
+	dragMe.Name = "DragMe!: " .. lastPart1.Name
+	dragMe.Parent = workspace
+	spawn(function()
+		while true do
+			wait() --eh
+			self:CCDIKIterateOnceDebug(dragMe.Position, 0.1)
+		end
 	end)
 end
 --[[---------------------------------------------------------
@@ -550,18 +637,18 @@ end
 ]]
 function commandBarSetupJoints(model)
 	local modelDescendants = model:GetDescendants()
-	for _,motor6D in pairs(modelDescendants) do
+	for _, motor6D in pairs(modelDescendants) do
 		if motor6D:IsA("Motor6D") then
 			--In order to find the joint in world terms
 			local Part0Name = motor6D.Part0.Name
 			local AxisAttachment = Instance.new("Attachment")
 			AxisAttachment.CFrame = motor6D.C0
-			AxisAttachment.Name = Part0Name.."AxisAttachment"
+			AxisAttachment.Name = Part0Name .. "AxisAttachment"
 			AxisAttachment.Parent = motor6D.Part0
-	
+
 			local JointAttachment = Instance.new("Attachment")
 			JointAttachment.CFrame = motor6D.C1
-			JointAttachment.Name = Part0Name.."JointAttachment"
+			JointAttachment.Name = Part0Name .. "JointAttachment"
 			JointAttachment.Parent = motor6D.Part1
 		end
 	end
@@ -569,36 +656,35 @@ end
 --Same as the above function but follow RigAttachment naming rule
 function commandBarSetupRigAttachments(model)
 	local modelDescendants = model:GetDescendants()
-	for _,motor6D in pairs(modelDescendants) do
+	for _, motor6D in pairs(modelDescendants) do
 		if motor6D:IsA("Motor6D") then
 			--In order to find the joint in world terms
 			local motor6DName = motor6D.Name
 			local AxisAttachment = Instance.new("Attachment")
 			AxisAttachment.CFrame = motor6D.C0
-			AxisAttachment.Name = motor6DName.."RigAttachment"
+			AxisAttachment.Name = motor6DName .. "RigAttachment"
 			AxisAttachment.Parent = motor6D.Part0
-	
+
 			local JointAttachment = Instance.new("Attachment")
 			JointAttachment.CFrame = motor6D.C1
-			JointAttachment.Name = motor6DName.."RigAttachment"
+			JointAttachment.Name = motor6DName .. "RigAttachment"
 			JointAttachment.Parent = motor6D.Part1
 		end
 	end
 end
 
-
 --[[
 	Utility function spawning a wedge part to visualize a vector in world space
 ]]
-function CCDIKController.VisualizeVector(position,direction,brickColor)
+function CCDIKController.VisualizeVector(position, direction, brickColor)
 	local wedgePart = Instance.new("WedgePart")
-	wedgePart.Size = Vector3.new(0.1,0.1,direction.Magnitude)
-	wedgePart.CFrame = CFLOOKAT(position,position+direction)*CFrame.new(0,0,-direction.Magnitude/2)
+	wedgePart.Size = Vector3.new(0.1, 0.1, direction.Magnitude)
+	wedgePart.CFrame = CFLOOKAT(position, position + direction) * CFrame.new(0, 0, -direction.Magnitude / 2)
 	wedgePart.Anchored = true
 	wedgePart.CanCollide = false
 	wedgePart.BrickColor = brickColor or BrickColor.random()
 	wedgePart.Parent = workspace
-	Debris:AddItem(wedgePart,1)
+	Debris:AddItem(wedgePart, 0.75)
 end
 --[[
 	Do cleaning destroys all the instances made by this object
