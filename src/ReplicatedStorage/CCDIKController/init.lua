@@ -78,12 +78,14 @@ function CCDIKController.new(Motor6DTable, Constraints)
 	self.Motor6DTable = Motor6DTable
 	--resets the rotation of the Motor6D automatically
 	--Prevents C0 orientated models like R6 from spinning wildly
-	for i, motor6D in pairs(Motor6DTable) do
-		local newC1Orientation = motor6D.C1 * motor6D.C0:Inverse()
-		newC1Orientation -= newC1Orientation.Position
-		motor6D.C0 = CFrame.new() + motor6D.C0.Position
-		motor6D.C1 = newC1Orientation + motor6D.C1.Position
-	end
+	--Not needed anymore, was due to C0 and C1 orientations not being 0
+	--Fixed with new C0 formula
+	-- for i, motor6D in pairs(Motor6DTable) do
+	--local newC1Orientation = motor6D.C1 * motor6D.C0:Inverse()
+	--newC1Orientation -= newC1Orientation.Position
+	--motor6D.C0 = CFrame.new() + motor6D.C0.Position
+	--motor6D.C1 = newC1Orientation + motor6D.C1.Position
+	-- end
 	self.Constraints = Constraints
 	self.JointInfo, self.JointAxisInfo = self:SetupJoints() -- Creates instances make sure to clean up via :Destroy()
 	self.EndEffector = Motor6DTable[#Motor6DTable].Part1:FindFirstChild("EndEffector")
@@ -255,10 +257,10 @@ function CCDIKController:_CCDIKIterateStep(goalPosition, step)
 	for i = #self.Motor6DTable - 1 + useLastMotor, 1, -1 do
 		local currentJoint = self.Motor6DTable[i]
 
-		currentJoint.C0 *= currentJoint.Transform -- apply animations to C0 instead of . Transform
-		currentJoint.Transform = CFNEW()
-
+		currentJoint.C0 *= currentJoint.Transform -- apply animations to C0
 		self:RotateFromEffectorToGoal(currentJoint, goalPosition, step)
+
+		currentJoint.Transform = CFNEW()
 
 		if constraints then
 			local jointConstraintInfo = constraints[currentJoint]
@@ -325,24 +327,46 @@ function CCDIKController:CCDIKIterateUntil(goalPosition, tolerance, maxBreakCoun
 	end
 end
 
+local function worldCFrameToC0ObjectSpace(motor6DJoint,worldCFrame)
+	local part1CF = motor6DJoint.Part1.CFrame
+	local c1Store = motor6DJoint.C1
+	local c0Store = motor6DJoint.C0
+	local relativeToPart1 =c0Store*c1Store:Inverse()*part1CF:Inverse()*worldCFrame*c1Store
+	relativeToPart1 -= relativeToPart1.Position
+	local goalC0CFrame = relativeToPart1+c0Store.Position
+	return goalC0CFrame
+end
+local function calculateGoalFromToC0CFrame(motor6DJoint, u, v, axis)
+	local rotationCFrame = fromToRotation(u, v, axis)
+	local part1CF = motor6DJoint.Part1.CFrame
+	local c1Store = motor6DJoint.C1
+	local c0Store = motor6DJoint.C0
+	--calculate goal world CFrame
+	local goalWorldCFrame = rotationCFrame*part1CF
+
+	--do the New C1 Inversing
+	local relativeToPart1 =c0Store*c1Store:Inverse()*part1CF:Inverse()*goalWorldCFrame*c1Store
+
+	--maintain original C0 position
+	relativeToPart1 -= relativeToPart1.Position
+	local goalC0CFrame = relativeToPart1+c0Store.Position
+	-- local goalC0CFrame = relativeToPart1
+
+	return goalC0CFrame
+end
+
 function CCDIKController.rotateJointFromTo(motor6DJoint, u, v, axis)
-	local rotationCFrame = getRotationBetween(u, v, axis)
-	local applyRotationToPart1 = rotationCFrame * motor6DJoint.Part1.CFrame
-	rotationCFrame = motor6DJoint.Part0.CFrame:Inverse() * applyRotationToPart1
-	rotationCFrame = rotationCFrame - rotationCFrame.Position
-	local goalC0CFrame = CFrame.new(motor6DJoint.C0.Position) * rotationCFrame
+	local goalC0CFrame = calculateGoalFromToC0CFrame(motor6DJoint, u, v, axis)
 
 	motor6DJoint.C0 = goalC0CFrame
 end
 
-local tweenInfo = TweenInfo.new(0.75)
-function CCDIKController.rotateJointFromToTween(motor6DJoint, u, v, axis)
-	local rotationCFrame = getRotationBetween(u, v, axis)
-	local applyRotationToPart1 = rotationCFrame * motor6DJoint.Part1.CFrame
-	rotationCFrame = motor6DJoint.Part0.CFrame:Inverse() * applyRotationToPart1
-	rotationCFrame = rotationCFrame - rotationCFrame.Position
-	local goalC0CFrame = CFrame.new(motor6DJoint.C0.Position) * rotationCFrame
+local tweenInfo = TweenInfo.new(0.1)
 
+function CCDIKController.rotateJointFromToTween(motor6DJoint, u, v, axis)
+	print("Tweeen")
+	--alternative calculation method
+	local goalC0CFrame = calculateGoalFromToC0CFrame(motor6DJoint, u, v, axis)
 	local tween = TweenService:Create(motor6DJoint, tweenInfo, { C0 = goalC0CFrame })
 	tween:Play()
 	tween.Completed:Wait()
@@ -350,11 +374,8 @@ end
 
 --Controls the primary CCDIK Method but instead of going fully towards the goal it lerps slowly towards it instead
 function CCDIKController:rotateJointFromToWithLerp(motor6DJoint: Motor6D, u, v, axis, step)
-	local rotationCFrame = getRotationBetween(u, v, axis)
-	local applyRotationToPart1 = rotationCFrame * motor6DJoint.Part1.CFrame
-	rotationCFrame = motor6DJoint.Part0.CFrame:Inverse() * applyRotationToPart1
-	rotationCFrame = rotationCFrame - rotationCFrame.Position
-	local goalC0CFrame = CFrame.new(motor6DJoint.C0.Position) * rotationCFrame
+	--print("Rotateting")
+	local goalC0CFrame = calculateGoalFromToC0CFrame(motor6DJoint, u, v, axis)
 
 	local lerpAlpha = self.LerpAlpha
 
@@ -385,7 +406,7 @@ function CCDIKController:RotateFromEffectorToGoal(motor6d: Motor6D, goalPosition
 	if self.DebugMode then
 		self.VisualizeVector(jointWorldPosition, endEffectorPosition - jointWorldPosition, BrickColor.Blue())
 		self.VisualizeVector(jointWorldPosition, goalPosition - jointWorldPosition, BrickColor.Red())
-		self.rotateJointFromToTween(motor6d, directionToEffector, directionToGoal, part0CF.RightVector)
+		self.rotateJointFromToTween(motor6d, directionToEffector, directionToGoal, part0CF.UpVector)
 		return --skip the rest since debug mode lol
 	end
 
@@ -436,9 +457,11 @@ function CCDIKController:RotateToHingeAxis(motor6d: Motor6D, jointConstraintInfo
 	local constrainedJointCFrame = CFrame.fromEulerAnglesXYZ(constrainedX, 0, 0)
 	local newWorldJointCFrame = axisCFrame:ToWorldSpace(constrainedJointCFrame)
 	local newPart1CFrame = newWorldJointCFrame * jointAttachment.CFrame:Inverse() -- Uhh only works with attachments
-	local goalCFRotation = motor6d.Part0.CFrame:Inverse() * newPart1CFrame
-	goalCFRotation = goalCFRotation - goalCFRotation.Position
-	motor6d.C0 = CFrame.new(motor6d.C0.Position) * goalCFRotation
+	-- local goalCFRotation = motor6d.Part0.CFrame:Inverse() * newPart1CFrame
+	-- goalCFRotation = goalCFRotation - goalCFRotation.Position
+
+	local goalCFRotation = worldCFrameToC0ObjectSpace(motor6d,newPart1CFrame)
+	motor6d.C0 = goalCFRotation
 end
 
 --[[---------------------------------------------------------
@@ -455,6 +478,16 @@ Dictionary to setup the constraint information:
 		["JointAttachment"] = nil;
 	};
 ]]
+
+local function twistSwing(cf, direction)
+	local axis, theta = cf:ToAxisAngle()
+	local w, v = math.cos(theta / 2), math.sin(theta / 2) * axis
+	local proj = v:Dot(direction) * direction
+	local twist = CFrame.new(cf.x, cf.y, cf.z, proj.x, proj.y, proj.z, w)
+	local swing = twist:Inverse() * cf
+	return swing, twist
+end
+
 function CCDIKController:RotateToBallSocketConstraintAxis(motor6d, jointConstraintInfo)
 	local motor6dPart0 = motor6d.Part0
 	local part0CF = motor6dPart0.CFrame
@@ -481,14 +514,7 @@ function CCDIKController:RotateToBallSocketConstraintAxis(motor6d, jointConstrai
 		local currentJointCFrame = jointAttachment.WorldCFrame
 
 		local twistSwingAxis = axisAttachment.WorldAxis
-		local function twistSwing(cf, direction)
-			local axis, theta = cf:ToAxisAngle()
-			local w, v = math.cos(theta / 2), math.sin(theta / 2) * axis
-			local proj = v:Dot(direction) * direction
-			local twist = CFrame.new(cf.x, cf.y, cf.z, proj.x, proj.y, proj.z, w)
-			local swing = twist:Inverse() * cf
-			return swing, twist
-		end
+
 		local jointRelativeCFrame = axisCFrame:ToObjectSpace(currentJointCFrame)
 		local swing, twist = twistSwing(jointRelativeCFrame, twistSwingAxis)
 		local axis, angle = twist:ToAxisAngle()
@@ -513,8 +539,9 @@ function CCDIKController:RotateToBallSocketConstraintAxis(motor6d, jointConstrai
 			local newConstraintedRelativeCFrame = newTwist * swing
 			local newJointWorldCFrame = axisCFrame * newConstraintedRelativeCFrame
 			local part1CF = newJointWorldCFrame * jointAttachment.CFrame:Inverse()
-			local goalCF = motor6d.Part0.CFrame:Inverse() * part1CF
-			motor6d.C0 = CFNEW(motor6d.C0.Position) * (goalCF - goalCF.Position)
+			-- local goalCF = motor6d.Part0.CFrame:Inverse() * part1CF -- old to object space method
+			local goalCF = worldCFrameToC0ObjectSpace(motor6d,part1CF)
+			motor6d.C0 = goalCF
 		end
 	end
 end
@@ -553,13 +580,15 @@ function CCDIKController:OrientFootMotorToFloor(motor6d: Motor6D, step)
 
 	local newUpVector = raycastNilCheck and footCFrame.UpVector
 		or (rayResultTable[2].Position - rayResultTable[1].Position):Cross(
-			rayResultTable[3].Position - rayResultTable[1].Position
-		).Unit
+	rayResultTable[3].Position - rayResultTable[1].Position
+	).Unit
 
 	local currentFootUpVector = footCFrame.UpVector
 
-	self:rotateJointFromToWithLerp(motor6d, currentFootUpVector, newUpVector, footCFrame.UpVector, step)
-
+	--fixes the ? foot inverting issue
+	if raycastNilCheck == false then
+		self:rotateJointFromToWithLerp(motor6d, currentFootUpVector, newUpVector, footCFrame.UpVector, step)
+	end
 	--Then enforce constraints
 	local constraints = self.Constraints
 	if constraints then
@@ -578,6 +607,7 @@ end
 function CCDIKController:InitDragDebug()
 	local lastPart1 = self.Motor6DTable[#self.Motor6DTable].Part1
 
+	self.LerpMode = false
 	local dragMe = Instance.new("Part")
 	dragMe.CanCollide = false
 	dragMe.Anchored = true
@@ -587,13 +617,41 @@ function CCDIKController:InitDragDebug()
 	dragMe.Name = "DragMe!: " .. lastPart1.Name
 	dragMe.Parent = workspace
 	RunService.Heartbeat:Connect(function()
-		self:CCDIKIterateOnce(dragMe.Position, 0.1)
+		self:CCDIKIterateOnce(dragMe.Position)
 	end)
 end
 
 function CCDIKController:InitTweenDragDebug()
 	local lastPart1 = self.Motor6DTable[#self.Motor6DTable].Part1
 	self.DebugMode = true
+
+
+	--self.JointInfo[motor6d].WorldPosition
+	for i=1,#self.Motor6DTable-1 do
+		print("test")
+		local motor1 = self.Motor6DTable[i]
+		local motor2 = self.Motor6DTable[i+1]
+		local t1 = self.JointInfo[motor1].WorldPosition
+		local t2 = self.JointInfo[motor2].WorldPosition
+		local position = t1
+		local direction = t2-t1
+		local wedgePart = Instance.new("WedgePart")
+		wedgePart.Size = Vector3.new(0.1, 0.1, direction.Magnitude)
+		wedgePart.CFrame = CFLOOKAT(position, position + direction) * CFrame.new(0, 0, -direction.Magnitude / 2)
+		wedgePart.CanCollide = false
+		local weldConstraint = Instance.new("WeldConstraint")
+		weldConstraint.Part0 = wedgePart
+		weldConstraint.Part1 = motor2.Parent
+		weldConstraint.Parent = motor2.Parent
+
+		wedgePart.Parent = workspace
+		wedgePart.Name = "I am a limb vector"
+
+	end
+	for i,Motor in pairs(self.Motor6DTable) do
+		Motor.Part1.Transparency = 0.75
+		Motor.Part0.Transparency = 0.75
+	end
 
 	local dragMe = Instance.new("Part")
 	dragMe.CanCollide = false
@@ -606,7 +664,7 @@ function CCDIKController:InitTweenDragDebug()
 	spawn(function()
 		while true do
 			wait() --eh
-			self:CCDIKIterateOnceDebug(dragMe.Position, 0.1)
+			self:CCDIKIterateOnceDebug(dragMe.Position)
 		end
 	end)
 end
